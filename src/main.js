@@ -1,93 +1,150 @@
-import "./style.css";
-// Select canvas
+/* main.js */
 const canvas = document.getElementById("pongCanvas");
 const ctx = canvas.getContext("2d");
 
-// Ball properties
+canvas.width = 600;
+canvas.height = 400;
+
+/* Game Objects */
+const paddleHeight = 60;
+const paddleWidth = 10;
+let leftPaddleY = (canvas.height - paddleHeight) / 2;
+let rightPaddleY = (canvas.height - paddleHeight) / 2;
+
+const ballSize = 10;
 let ballX = canvas.width / 2;
 let ballY = canvas.height / 2;
-let ballSpeedX = 5;
-let ballSpeedY = 5;
+let ballSpeedX = 3;
+let ballSpeedY = 3;
 
-// Paddle properties
-const paddleHeight = 100;
-const paddleWidth = 10;
-let playerY = canvas.height / 2 - paddleHeight / 2;
-let aiY = canvas.height / 2 - paddleHeight / 2;
-const paddleSpeed = 10;
+/* Movement Keys */
+let upPressed = false;
+let downPressed = false;
+let wPressed = false;
+let sPressed = false;
+let gameRunning = false;
 
-// Update game objects
-const update = () => {
+/* Draw Paddles, Ball, etc. */
+function drawPaddle(x, y) {
+  ctx.fillRect(x, y, paddleWidth, paddleHeight);
+}
+
+function drawBall() {
+  ctx.fillRect(ballX, ballY, ballSize, ballSize);
+}
+
+function drawScene() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Left paddle
+  ctx.fillStyle = "white";
+  drawPaddle(10, leftPaddleY);
+
+  // Right paddle
+  drawPaddle(canvas.width - paddleWidth - 10, rightPaddleY);
+
+  // Ball
+  drawBall();
+}
+
+/* Update positions */
+function updatePositions() {
+  // Move left paddle
+  if (wPressed && leftPaddleY > 0) {
+    leftPaddleY -= 4;
+  } else if (sPressed && leftPaddleY < canvas.height - paddleHeight) {
+    leftPaddleY += 4;
+  }
+
+  // Move right paddle
+  if (upPressed && rightPaddleY > 0) {
+    rightPaddleY -= 4;
+  } else if (downPressed && rightPaddleY < canvas.height - paddleHeight) {
+    rightPaddleY += 4;
+  }
+
+  // Move ball
   ballX += ballSpeedX;
   ballY += ballSpeedY;
 
-  // Ball collision with top/bottom
-  if (ballY <= 0 || ballY >= canvas.height) {
-    ballSpeedY *= -1;
+  // Bounce on top/bottom walls
+  if (ballY <= 0 || ballY + ballSize >= canvas.height) {
+    ballSpeedY = -ballSpeedY;
   }
 
-  // Ball collision with paddles
+  // Check collision with left paddle
   if (
-    ballX <= paddleWidth && ballY >= playerY && ballY <= playerY + paddleHeight
+    ballX <= 20 &&
+    ballY + ballSize >= leftPaddleY &&
+    ballY <= leftPaddleY + paddleHeight
   ) {
-    ballSpeedX *= -1;
+    ballSpeedX = -ballSpeedX;
   }
 
+  // Check collision with right paddle
   if (
-    ballX >= canvas.width - paddleWidth &&
-    ballY >= aiY &&
-    ballY <= aiY + paddleHeight
+    ballX + ballSize >= canvas.width - 20 &&
+    ballY + ballSize >= rightPaddleY &&
+    ballY <= rightPaddleY + paddleHeight
   ) {
-    ballSpeedX *= -1;
+    ballSpeedX = -ballSpeedX;
   }
 
-  // Ball out of bounds
+  // Check left/right walls (reset ball or do scoring)
   if (ballX < 0 || ballX > canvas.width) {
-    resetBall();
+    resetPositions(); 
   }
+}
 
-  // AI Paddle movement (follows ball)
-  aiY += (ballY - (aiY + paddleHeight / 2)) * 0.1;
-};
+function gameLoop() {
+  if (gameRunning) {
+    updatePositions();
+    drawScene();
+    requestAnimationFrame(gameLoop);
+  }
+}
 
-// Draw everything
-const draw = () => {
-  // Clear screen
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+function startGame() {
+  if (!gameRunning) {
+    gameRunning = true;
+    gameLoop();
+  }
+}
 
-  // Draw paddles
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, playerY, paddleWidth, paddleHeight);
-  ctx.fillRect(canvas.width - paddleWidth, aiY, paddleWidth, paddleHeight);
+function resetGame() {
+  gameRunning = false;
+  resetPositions();
+  drawScene();
+}
 
-  // Draw ball
-  ctx.beginPath();
-  ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
-  ctx.fill();
-};
+function resetPositions() {
+  leftPaddleY = (canvas.height - paddleHeight) / 2;
+  rightPaddleY = (canvas.height - paddleHeight) / 2;
+  ballX = canvas.width / 2 - ballSize / 2;
+  ballY = canvas.height / 2 - ballSize / 2;
+  ballSpeedX = Math.random() > 0.5 ? 3 : -3;
+  ballSpeedY = Math.random() > 0.5 ? 3 : -3;
+}
 
-// Reset ball after scoring
-const resetBall = () => {
-  ballX = canvas.width / 2;
-  ballY = canvas.height / 2;
-  ballSpeedX *= -1;
-};
-
-// Game loop using `requestAnimationFrame`
-const gameLoop = () => {
-  update();
-  draw();
-  requestAnimationFrame(gameLoop);
-};
-
-// Event listener for player movement
-window.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowUp" && playerY > 0) playerY -= paddleSpeed;
-  if (e.key === "ArrowDown" && playerY < canvas.height - paddleHeight) playerY += paddleSpeed;
+/* Event Listeners */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp") upPressed = true;
+  if (e.key === "ArrowDown") downPressed = true;
+  if (e.key === "w" || e.key === "W") wPressed = true;
+  if (e.key === "s" || e.key === "S") sPressed = true;
 });
 
-// Start game loop after page loads
-window.onload = () => {
-  gameLoop();
-};
+document.addEventListener("keyup", (e) => {
+  if (e.key === "ArrowUp") upPressed = false;
+  if (e.key === "ArrowDown") downPressed = false;
+  if (e.key === "w" || e.key === "W") wPressed = false;
+  if (e.key === "s" || e.key === "S") sPressed = false;
+});
+
+/* Hook buttons (assuming same order as in HTML) */
+const [startBtn, resetBtn] = document.querySelectorAll("button");
+startBtn.addEventListener("click", startGame);
+resetBtn.addEventListener("click", resetGame);
+
+/* Initial draw */
+drawScene();
