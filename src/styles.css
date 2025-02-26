@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+  
+canvas {
+    width: 1200px;
+    height: 1000px;
+    background-color: rgb(39, 99, 99);
+    font-size: large;
+}
+
+.custom-title {
+    font-size: 250px;
+    font-weight: bold;
+    color: #ff5733;
+}
+
+.card {
+    background: linear-gradient(to right, #ff5733, #3498db);
+    padding: 20px;
+    border-radius: 10px;
+}
