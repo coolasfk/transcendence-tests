@@ -1,14 +1,18 @@
-/* main.js */
+
 const canvas = document.getElementById("pongCanvas");
 const ctx = canvas.getContext("2d");
 const [startBtn, resetBtn] = document.querySelectorAll("button");
 
-canvas.width = 600;
-canvas.height = 480;
 
-/* Game Objects */
+canvas.width = 700;
+canvas.height = 500;
+
+//ctx.fillStyle = "#272838";
+ctx.fillStyle = "black";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 const paddleHeight = 60;
-const paddleWidth = 10;
+const paddleWidth = 5;
 let leftPaddleY = (canvas.height - paddleHeight) / 2;
 let rightPaddleY = (canvas.height - paddleHeight) / 2;
 
@@ -21,49 +25,44 @@ const ball = {
   ballSpeedY: 3,
 }
 
-
-/* Movement Keys */
 let upPressed = false;
 let downPressed = false;
 let wPressed = false;
 let sPressed = false;
 let gameOn = false;
 
-/* Draw Paddles, Ball, etc. */
-function drawPaddle(x, y) {
+/*-------------------------------------------- functions -----------------------------------------------------------------*/
+
+
+
+let drawPaddle = (x, y) =>
+{
   ctx.fillRect(x, y, paddleWidth, paddleHeight);
 }
 
-function drawBall() {
+let drawBall = () => {
   ctx.beginPath();
 ctx.arc(ball.ballX, ball.ballY, ball.ballSize , 0, Math.PI * 2);
 ctx.fill();
 }
 
-function drawScene() {
+let  drawScene = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Left paddle
-  ctx.fillStyle = "white";
+  //ctx.fillStyle = "#272838";
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#7F1D1D";
   drawPaddle(10, leftPaddleY);
-
-  // Right paddle
   drawPaddle(canvas.width - paddleWidth - 10, rightPaddleY);
-
-  // Ball
   drawBall();
 }
 
-/* Update positions */
-function updatePositions() {
-  // Move left paddle
+let updatePositions = () => {
   if (wPressed && leftPaddleY > 0) {
     leftPaddleY -= 4;
   } else if (sPressed && leftPaddleY < canvas.height - paddleHeight) {
     leftPaddleY += 4;
   }
-
-  // Move right paddle
   if (upPressed && rightPaddleY > 0) {
     rightPaddleY -= 4;
   } else if (downPressed && rightPaddleY < canvas.height - paddleHeight) {
@@ -99,38 +98,49 @@ function updatePositions() {
     ball.ballSpeedX = -ball.ballSpeedX;
   }
   if (ball.ballX < 0 || ball.ballX > canvas.width) {
-    console.log("lost")
-    resetPositions(); 
+    console.log("LOST");
+      resetPositions(); 
+      resetGame();
+      setTimeout(()=>{
+        startGame();
+      }, 2000);
+
+    
   }
 }
 
-function gameLoop() {
+
+let gameLoop= () =>{
   if (gameOn) {
-    console.log("Game loop running");
     updatePositions();
     drawScene();
     requestAnimationFrame(gameLoop);
   }
 }
 
-function startGame() {
+let startGame = () => {
   if (!gameOn) {
-    gameOn = true;
+    gameOn = true;   
     gameLoop();
+
+
   }
 }
 
-function resetGame() {
+let resetGame = () =>{
   gameOn = false;
-  resetPositions();
+  resetPositions(); 
   drawScene();
+
+
 }
 
-function resetPositions() {
+let resetPositions = () => {
+  console.log("resetting the positions");
   leftPaddleY = (canvas.height - paddleHeight) / 2;
   rightPaddleY = (canvas.height - paddleHeight) / 2;
-  ball.ballX = canvas.width / 2 - ball.ballSize / 2;
-  ball.ballY = canvas.height / 2 - ball.ballSize / 2;
+  ball.ballX = canvas.width / 2;
+  ball.ballY = canvas.height / 2;
   ball.ballSpeedX = Math.random() > 0.5 ? 3 : -3;
   ball.ballSpeedY = Math.random() > 0.5 ? 3 : -3;
 }
@@ -153,6 +163,5 @@ document.addEventListener("keyup", (e) => {
 
 startBtn.addEventListener("click", startGame);
 resetBtn.addEventListener("click", resetGame);
-
 
 drawScene();
