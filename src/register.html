@@ -21,11 +21,13 @@
 
       
     </header>
-
-    <!-- Game Canvas Container -->
     <main class="relative flex flex-col items-center w-[50vw] h-[70vh]">
         <p class="font-[Teko] text-5xl text-red-900 mt-0.5 mb-5 mx-auto">Ready to play? Create your account</p>
         <form id="registerForm" class="space-y-4">
+            <div>
+                <input id="nickname"  required placeholder="I am..."
+                       class="cursor-text w-full min-w-100 p-4 mt-1 placeholder-grey-500 bg-black border-4  border-red-900 focus:ring-2 focus:ring-white">
+              </div>
             <div>
               <input type="email" id="email" name="email" required placeholder="Type your email here..."
                      class="cursor-text w-full min-w-100 p-4 mt-1 placeholder-grey-500 bg-black border-4  border-red-900 focus:ring-2 focus:ring-white">
@@ -43,14 +45,14 @@
             <div class="flex justify-center mt-6">
               <button id="submitRegisterBtn" type="submit" 
                       class="px-10 py-3 text-white hover:bg-purple-300 transition shadow-md transform hover:scale-105">
-                Play Game
+                SUBMIT
               </button>
             </div>
           </form>
           
       
           <!-- Already have an account? -->
-          <p class="text-center text-sm mt-4">
+          <p class="text-center text-sm mt-[40vh]">
             Already have an account? <a href="login.html" class="text-red-900 underline">Login here</a>.
           </p>
  
