@@ -1,29 +1,45 @@
 
 const canvas = document.getElementById("pongCanvas");
 const ctx = canvas.getContext("2d");
-const [startBtn, resetBtn] = document.querySelectorAll("button");
+const startBtn = document.getElementById("startBtn");
+const resetBtn = document.getElementById("resetBtn");
 
 
-canvas.width = 700;
-canvas.height = 500;
+width = window.innerWidth * 0.9;
+
+function resizeCanvas() {
+  // Set canvas size relative to viewport
+
+  canvas.width = width; // 90% of window width
+  canvas.height = width * (9 / 16); // Maintain 16:9 aspect ratio
+
+  // Redraw the scene after resizing
+  resetPositions();
+  drawScene();
+}
+
+
+
 
 //ctx.fillStyle = "#272838";
 ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-const paddleHeight = 60;
-const paddleWidth = 5;
+const paddleHeight = width * (9/16) * 0.13;
+const paddleWidth = width * (9/16) * 0.016 ;
 let leftPaddleY = (canvas.height - paddleHeight) / 2;
 let rightPaddleY = (canvas.height - paddleHeight) / 2;
 
 
 const ball = {
-  ballSize: 8,
+  ballSize: 9,
   ballX: canvas.width / 2,
   ballY: canvas.height / 2,
   ballSpeedX: 3,
   ballSpeedY: 3,
 }
+
+
 
 let upPressed = false;
 let downPressed = false;
@@ -54,6 +70,7 @@ let  drawScene = () => {
   ctx.fillStyle = "#7F1D1D";
   drawPaddle(10, leftPaddleY);
   drawPaddle(canvas.width - paddleWidth - 10, rightPaddleY);
+  rectangleMiddle = ctx.fillRect(width/2 - 2, 0, 4, width * (9/16));
   drawBall();
 }
 
@@ -165,3 +182,6 @@ startBtn.addEventListener("click", startGame);
 resetBtn.addEventListener("click", resetGame);
 
 drawScene();
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
