@@ -7,7 +7,7 @@
 canvas {
     width: 1200px;
     height: 1000px;
-    background-color: rgb(39, 99, 99);
+    background-color:transparent;
     font-size: large;
 }
 

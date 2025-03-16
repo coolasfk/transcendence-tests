@@ -55,9 +55,9 @@ nickname =  document.getElementById("nickname");
   
     function validatePassword(password) {
       return password.length >= 5 &&
-             /[A-Z]/.test(password) && // At least one uppercase letter
-             /[a-z]/.test(password) && // At least one lowercase letter
-             /\d/.test(password);      // At least one number
+             /[A-Z]/.test(password) && 
+             /[a-z]/.test(password) && 
+             /\d/.test(password);    
     }
 
   

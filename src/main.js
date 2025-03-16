@@ -8,12 +8,11 @@ const resetBtn = document.getElementById("resetBtn");
 width = window.innerWidth * 0.9;
 
 function resizeCanvas() {
-  // Set canvas size relative to viewport
 
-  canvas.width = width; // 90% of window width
-  canvas.height = width * (9 / 16); // Maintain 16:9 aspect ratio
 
-  // Redraw the scene after resizing
+  canvas.width = width; 
+  canvas.height = width * (9 / 16); 
+
   resetPositions();
   drawScene();
 }
@@ -22,8 +21,9 @@ function resizeCanvas() {
 
 
 //ctx.fillStyle = "#272838";
-ctx.fillStyle = "black";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 const paddleHeight = width * (9/16) * 0.13;
 const paddleWidth = width * (9/16) * 0.016 ;
@@ -32,7 +32,7 @@ let rightPaddleY = (canvas.height - paddleHeight) / 2;
 
 
 const ball = {
-  ballSize: 9,
+  ballSize: 15,
   ballX: canvas.width / 2,
   ballY: canvas.height / 2,
   ballSpeedX: 3,
@@ -59,15 +59,18 @@ let drawPaddle = (x, y) =>
 let drawBall = () => {
   ctx.beginPath();
 ctx.arc(ball.ballX, ball.ballY, ball.ballSize , 0, Math.PI * 2);
+ctx.fillStyle = "#800517";
+ctx.fillStyle = "#305cde";
 ctx.fill();
 }
 
 let  drawScene = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   //ctx.fillStyle = "#272838";
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#7F1D1D";
+  //ctx.fillStyle = "rgba(0,0,0,0)";
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "white";
   drawPaddle(10, leftPaddleY);
   drawPaddle(canvas.width - paddleWidth - 10, rightPaddleY);
   rectangleMiddle = ctx.fillRect(width/2 - 2, 0, 4, width * (9/16));
