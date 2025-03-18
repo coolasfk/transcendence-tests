@@ -49,7 +49,7 @@ nickname =  document.getElementById("nickname");
           
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("----*---- Error:", error);
         alert("Sorry, the server experiences difficulties.");
         window.location.href = "../index.html"; 
       }
