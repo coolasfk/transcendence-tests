@@ -455,11 +455,6 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
-  .\*\:flex {
-    :is(& > *) {
-      display: flex;
-    }
-  }
   .hover\:scale-105 {
     &:hover {
       @media (hover: hover) {

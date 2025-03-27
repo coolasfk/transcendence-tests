@@ -1,5 +1,34 @@
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:5000");
+
 export const initGame = () => {
   console.log("Initializing the game...");
+
+
+
+  const nickname = prompt("Type your nickname: ");
+  if(!nickname || nickname.length < 2)
+  {
+    alert("Nickname too short!");
+    return;
+  }
+
+
+  const userId = Math.random() * (1000 - 500) * 500;
+
+  console.log("random id: " , userId);
+  
+  const player = new PlayerHuman(userId, nickname);
+
+  socket.emit("join match", {
+    userId,
+    nickname,
+    isItAi: false
+  })
+
+
+
 
   const canvas = document.getElementById("pongCanvas");
   if (!canvas) {

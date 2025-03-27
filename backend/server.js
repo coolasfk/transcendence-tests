@@ -3,17 +3,22 @@ import cors from '@fastify/cors';
 import sqlite3 from "sqlite3";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
+import { createServer } from 'http';
+import SocketGateway from './match/infrastructure/WebSocket/SocketGateway.js'
+
 
 dotenv.config();
 
 const fastify = Fastify();
 fastify.register(cors);
+const httpServer = createServer(fastify.server);
+const socketGateway = new SocketGateway(httpServer);
 
 
 
 const db = new sqlite3.Database("./trans_backend.db", (err) => {
-    if(err) console.log("Error in the back: ", err );
-    else console.log ("Connected to the database!");
+    if (err) console.log("Error in the back: ", err);
+    else console.log("Connected to the database!");
 });
 
 db.run(`CREATE TABLE IF NOT EXISTS users (
@@ -22,60 +27,85 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL)`);
 
-console.log("check 24");
+
 fastify.post("/api/register", async (request, reply) => {
     console.log("check 27");
     console.log(request.body);
     console.log("check 29");
-    const {nickname, email, password} = request.body;
+    const { nickname, email, password } = request.body;
 
-    if(!nickname || !email || !password)
-    {
+    if (!nickname || !email || !password) {
 
-        return reply.status(400).send({message: "Missing important information!"});
+        return reply.status(400).send({ message: "Missing important information!" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    /// ?? prevents database from hack attacks! otherwise hacker could just inject some code into sql query and by adding
-    /// --- make the rest of the code not valid, bypassing security, and making a password an sql command. internally, 
-    /// sqlite converts it in the background  to password and email
     db.run("INSERT INTO users (nickname, email, password) VALUES (?,?,?)", [nickname, email, hashedPassword], (err) => {
-        if(err)
-        {
+        if (err) {
             console.log("err: ", err);
-            if(err.code == 'SQLITE_CONSTRAINT')
-            {
-                return reply.status(400).send({message: "Email already in the database!"});
+            if (err.code == 'SQLITE_CONSTRAINT') {
+                return reply.status(400).send({ message: "Email already in the database!" });
             }
 
-            return reply.status(500).send({message: err});
+            return reply.status(500).send({ message: err });
         }
-        return reply.status(200).send({message: "User successfully added to database!"});
+        return reply.status(200).send({ message: "User successfully added to database!" });
     });
 });
 
 
-fastify.get('/', async (req, reply) => {
-    console.log("req.body: ", req.body);
-    reply.status(200).send({message: 'placeholder'});
-})
+fastify.post("/api/login", async (req, reply) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return reply.status(400).send({ message: "Missing credentials!" });
+    }
 
+    db.get("SELECT * FROM users WHERE email = ?", [email], async (err, user) => {
+        if (err) {
+            console.log("DB error:", err);
+            return reply.status(500).send({ message: "Server error." });
+        }
+        if (!user) {
+            console.log("USER NOT FOUND");
+            return reply.status(400).send({ message: "User not found." });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            console.log("PASS DO NOT MATCH");
+            return reply.status(401).send({ message: "Invalid password." });
+        }
+
+        console.log("USER NICKNAME: ", user.nickname);
+        reply.status(200).send({
+            message: "Login successful!",
+            nickname: user.nickname,
+        });
+    });
+});
+
+/// basically we dont have to make a promise but i wanted ;D
 
 const startServer = async () => {
 
- 
-try{
-    await fastify.listen({ port: 5000 });
-    console.log("Hurray server listening port 5000!");
+    try {
+        await new Promise((resolve, reject) => {
+            httpServer.once("error", reject);
 
+            httpServer.listen(5000, () => {
+                console.log("server is listening on http://localhost:5000");
+                resolve();
+            });
+        })
 
-} catch (err)
-{
-    console.log("errror caught", err);
-    fastify.log.error(err)
-    process.exit(1);
-}
+    } catch (err) {
+        console.error("errror caught", err);
+        fastify.log.error(err)
+        process.exit(1);
+    }
 };
+
+
 
 startServer();
 
