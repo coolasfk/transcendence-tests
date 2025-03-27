@@ -20,7 +20,7 @@ export default class Match {
         this.finalScoreA = 0;
         this.finalScoreB = 0;
         this.status = 'default';
-        this.statusArray = ['default', 'declined', 'pending', 'launching', 'ongoing', 'finished', 'calcelled'];
+        this.statusArray = ['default',  'pending', 'launching', 'ongoing', 'finished'];
         this.winner = null;
         this.date = null;
     }
@@ -36,16 +36,19 @@ export default class Match {
     acceptGameInvitation()
     {
         this.status = this.statusArray[3]; //launching
+
+        
     }
 
     declineInvitation()
     {
-        this.status = this.statusArray[2]; //declined
+        this.status = this.statusArray[0]; //default
     }
 
     cancelMatch()
     {
-        this.status = this.statusArray[6]; // cancelled
+        this.status = this.statusArray[0]; // default
+        /// should i reset all the scores here ?
     }
 
     createPlayer(id, isAi)
@@ -63,7 +66,27 @@ export default class Match {
 
     startMatch()
     {
+
+        /*
+        - open the socket
+        - launch prompts to get the nicknames for the players
+        - create players
+        - create pong 
+
+        - if this is a match with ai, launch this ai thing ( i will add code later)
+
+        - launch game loop and pass variables from the pong (use?)
+        - keep updating the scores throughhout the game
+        - save final data to the data base
+        - destroy pong and the socket and reset the variables
+    
+
+        
+        
+        
+        */
         this.date = new Date();
+        this.createPlayer(id, false); 
         this.createPong(this.playerA, this.playerB, this.isAi);
         this.status = 'active';
     }
@@ -77,6 +100,7 @@ export default class Match {
     {
         this.status = this.statusArray[5];
         this.winner = winnerId;
+        eventBus.publish("match.finished", this.serialize()); 
     }
 
     updateScore(playerId)

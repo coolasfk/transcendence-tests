@@ -2,7 +2,7 @@ export class Player
 {
     constructor(id)
     {
-        if(new.target === "Player")
+        if(new.target === Player)
         {
             throw new TypeError("You cannot initialize the player directly, it's an abstract class!")
         }
@@ -10,7 +10,7 @@ export class Player
 
         this.id = id;
         this.isAi = false;
-        this.paddle = {y}
+        this.paddle = {y: 0.5};
     }
 
 
