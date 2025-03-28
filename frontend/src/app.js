@@ -27,6 +27,7 @@ const pages = {
   
       <main class="relative flex flex-col bg-transparent items-center w-[50vw] h-[70vh]">
         <canvas id="pongCanvas" class="border-4 bg-transparent border-white"></canvas>
+        <h2 id="gameResultText"></h2>
         <!-- Controls -->
         <div class="font-[teko] mt-6 flex gap-6">
           <button 
@@ -35,6 +36,13 @@ const pages = {
                    text-white hover:bg-purple-300 transform hover:scale-105"
           >
             Start Game
+          </button>
+          <button 
+            id="startAiGameBtn"
+            class="cursor-pointer font-[teko] font-light text-2xl px-10 line-through py-3 
+                   text-white hover:bg-purple-300 transform hover:scale-105"
+          >
+            Start Game against Ai
           </button>
           <button 
             id="resetBtn"

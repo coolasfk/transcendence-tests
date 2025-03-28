@@ -17,8 +17,6 @@ export class Player
     serialize() {
         return {
             id: this.id,
-            nickname: this.nickname,
-            paddle: this.paddle
         }
     }
 }

@@ -4,13 +4,15 @@
 import Pong from '../valueObjects/Pong.js'
 import PlayerAi from './PlayerAi'
 import PlayerHuman from './PlayerHuman'
+import EventBus from '../../infrastructure/EventBus.js';
+import SocketGateway from '../../infrastructure/WebSocket/SocketGateway.js'
 
 
 export default class Match {
-    constructor(idA)
+    constructor(id)
     {
-        this.idA = idA;
-        this.idB = null;  /// we have to invite the user, or click on start ai
+        this.id = id;
+        this.opponentId = null;  /// we have to invite the user, or click on start ai
 
         this.playerA = null;
         this.playerB = null;
@@ -55,7 +57,7 @@ export default class Match {
     {
 
         /// nickname should be taken from the front
-        const player = isAi ? new PlayerAi : new PlayerHuman(id, nickname);
+        const player = isAi ? new PlayerAi() : new PlayerHuman(id, nickname);
 
         if(!this.playerA) this.playerA = player;
         else if(!this.playerB) this.playerB = player;
@@ -96,11 +98,22 @@ export default class Match {
         this.pong = new Pong();
     }
 
+    setPlayer(id)
+    {
+        this.playerA
+    }
+
+
+    getPlayerId()
+    {
+        return this.id;
+    }
     finishMatch(winnerId)
     {
-        this.status = this.statusArray[5];
+        this.status = this.statusArray[5]; //finished
         this.winner = winnerId;
-        eventBus.publish("match.finished", this.serialize()); 
+        EventBus.publish("match_finished", this.serializeForDb()); 
+
     }
 
     updateScore(playerId)
@@ -123,25 +136,16 @@ export default class Match {
 
     }
 
-    updateDatabase()
-    {
-        //send the info about the game to the database: date, winner, scoreA, scoreB
-    }
 
-    serialize()
+    serializeForDb()
     {
         return {
-            id: this.id,
+            userA_id: this.playerA?.id || null,
+            userB_id: this.playerB?.id || null,
+            scoreA: this.finalScoreA,
+            scoreB: this.finalScoreB,
+            winnerId: this.winner,
             date: this.date,
-            status: this.status,
-            playerA: this.playerA ? this.playerA.serialize() :null,
-            playerB: this.playerB ? this.playerB.serialize() : null,
-            scores: {
-                A: this.finalScoreA,
-                B: this.finalScoreB,
-            },
-            winner: this.winner,
-            pong: this.pong ? this.pong.serialize() : null,
         }
     }
 }

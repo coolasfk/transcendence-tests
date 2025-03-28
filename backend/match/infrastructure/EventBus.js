@@ -3,7 +3,7 @@ import Match from '../domain/entities/Match.js'
 
 export default class EventBus {
     constructor() {
-      this.subscribers = {};
+      this.subscribers = {}; //// this is an INTERNAL EVENT REGISTRY
     }
   
     subscribe(event, callback) {
