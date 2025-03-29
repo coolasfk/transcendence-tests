@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 const socket = io("http://localhost:5000");
   const userId = Math.floor(Math.random() * 1000000);
   console.log("User ID:", userId);
-export const initGame = () => {
+export const  initGame = async () => {
   console.log("Initializing the game...");
 
   const nickname = prompt("Type your nickname:");
@@ -18,6 +18,7 @@ export const initGame = () => {
   const startBtn = document.getElementById("startBtn");
   const resetBtn = document.getElementById("resetBtn");
   const startAiGameBtn = document.getElementById("startAiGameBtn");
+  const inviteAccepted = document.getElementById("inviteAccepted");
 
 //-------------------------------------
 
@@ -60,13 +61,13 @@ export const initGame = () => {
     });
   };
 
-
+/*
   if(startAiGameBtn)
   {
     startAiGameBtn.addEventListener("click", () => {
       socket.emit("join match with ai", {
         userId,
-
+        nickname
       })
     })
   }
@@ -80,6 +81,47 @@ export const initGame = () => {
       });
     });
   }
+*/
+
+
+
+
+try {
+  const response = await fetch ("http://localhost:5000/api/match/yourInviteGotAccepted", {
+    method: "POST", 
+    headers: {"Content-Type": "apllication/json"},
+    body: JSON.stringify({userId, nickname, oponnentId, oponnentNickname}),
+  });
+  if(response.ok)
+  {
+    alert("Pong is about to start... countdown... 3 .. 2")
+  }
+  else
+  {
+    alert(result.message || "Cannot start the game");
+  }
+} catch(error)
+{
+  console.error("Error: cannot start the game from the invitation: ", error);
+  alert("Cannot start the game from the invite, come back later");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   //// ------------- event listenners =================

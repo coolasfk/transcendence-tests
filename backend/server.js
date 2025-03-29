@@ -5,6 +5,10 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import { createServer } from 'http';
 import SocketGateway from './match/infrastructure/WebSocket/SocketGateway.js'
+import Match from "./match/domain/entities/Match.js";
+import {v4 as uuid} from 'uuid';
+import matchRepo from 'matchRepo'
+import {io} from "./match/infrastructure/WebSocket/SocketGateway.js"
 
 
 dotenv.config();
@@ -27,6 +31,30 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL)`);
 
+
+
+fastify.post("/api/match/yourInviteGotAccepted", async (req, res) => {
+
+    try{
+
+        const {yourId, yourNickname, oponnentId, oponnentNickname} = req.body;
+
+        const match = new Match(uuid());
+
+        match.createPlayer(yourId, yourNickname, false);
+        match.createPlayer(oponnentId, oponnentNickname, false);
+        match.startMatch(io);
+        return reply.status(200).send({message: "Match successfully created"});
+        
+
+    } catch(err)
+    {
+        console.log("error at /api.natch/yourInviteGotAccepted", err);
+        return reply.status(400).send({message: err});
+    }
+   
+
+})
 
 fastify.post("/api/register", async (request, reply) => {
     console.log("check 27");

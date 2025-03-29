@@ -1,17 +1,19 @@
 import SocketGatway from '../infrastructure/WebSocket/SocketGateway.js';
 
 
-class GameEngine 
+export default class GameEngine 
 {
     constructor(io, match)
     {
         this.io = io;
         this.match = match;
         this.loop = null;
+        this.timeStart = new Date();
+        this.timeNow = new Date(); 
 
     }
 
-    star() 
+    start() 
     {
         this.loop = setInterval(() => this.update(), 1000/60); /// 60 frames 
     }
@@ -34,5 +36,13 @@ class GameEngine
         this.io.to(this.match.id).emit("state_update", state);
     }
 
-    handleInput(playerId )
+    handleInput({playerId, up, down})
+    {
+        const player = this.match.getPlayerById(playerId);
+        if(!player)
+            return;
+        if(up) player.paddle.moveUp();
+        else if (down) player.paddle.moveDown();
+        else player.paddle.stop();
+    }
 }

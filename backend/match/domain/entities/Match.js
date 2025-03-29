@@ -3,8 +3,9 @@
 
 import Pong from '../valueObjects/Pong.js'
 import PlayerAi from './PlayerAi'
-import PlayerHuman from './PlayerHuman'
+import PlayerHuman from './PlayerHuman.js'
 import EventBus from '../../infrastructure/EventBus.js';
+import GameEngine from '../../infrastructure/GameEngine.js';
 import SocketGateway from '../../infrastructure/WebSocket/SocketGateway.js'
 
 
@@ -12,7 +13,7 @@ export default class Match {
     constructor(id)
     {
         this.id = id;
-        this.opponentId = null;  /// we have to invite the user, or click on start ai
+        this.opponentId = null;  /// we have to invite the user, or click on start ai /// we have to get id from the front
 
         this.playerA = null;
         this.playerB = null;
@@ -22,42 +23,48 @@ export default class Match {
         this.finalScoreA = 0;
         this.finalScoreB = 0;
         this.status = 'default';
-        this.statusArray = ['default',  'pending', 'launching', 'ongoing', 'finished'];
+        this.STATUS = {
+            DEAFULT: 'default',
+            PENDING: 'pending',
+            LAUNCING: 'launching',
+            ONGOING: 'ongoing',
+            FINISHED: 'finished',
+        };
         this.winner = null;
         this.date = null;
+
+        this.width = 1280;
+        this.height = 720;
+        this.engine = null;
     }
 
     ////sending invitation to the user: when clicking on the send invitation to 
     //the user in the front we take the id of the person we are inviting;
     sendGameInvitation()
     {
-        this.status = this.statusArray[1]; //pending
-
+        this.status = this.STATUS.PENDING;
+        EventBus.publish("game_invitation_sent", {matchId: this.id, oponnentId: this.opponentId});
     }
 
     acceptGameInvitation()
     {
-        this.status = this.statusArray[3]; //launching
-
-        
+        this.status = this.STATUS.LAUNCING;    
     }
 
     declineInvitation()
     {
-        this.status = this.statusArray[0]; //default
+        this.status = this.STATUS.DEAFULT;
     }
 
     cancelMatch()
     {
-        this.status = this.statusArray[0]; // default
-        /// should i reset all the scores here ?
+        this.status = this.STATUS.DEAFULT;
     }
 
-    createPlayer(id, isAi)
+    createPlayer(id, nickname, isAi)
     {
 
-        /// nickname should be taken from the front
-        const player = isAi ? new PlayerAi() : new PlayerHuman(id, nickname);
+        const player = isAi ? new PlayerAi("ai-"+ Math.floor(Math.random() * 10000)) : new PlayerHuman(id, nickname);
 
         if(!this.playerA) this.playerA = player;
         else if(!this.playerB) this.playerB = player;
@@ -66,7 +73,7 @@ export default class Match {
 
     }
 
-    startMatch()
+    startMatch(io)
     {
 
         /*
@@ -80,39 +87,45 @@ export default class Match {
         - launch game loop and pass variables from the pong (use?)
         - keep updating the scores throughhout the game
         - save final data to the data base
-        - destroy pong and the socket and reset the variables
-    
-
-        
-        
+        - destroy pong and the socket and reset the variables 
         
         */
+
+        if(!this.playerA || !this.playerB)
+        {
+            throw new Error("Both players must be set before the games starts!");
+        }
+        io.to(this.playerA.id).socketsJoin(this.playerA.id);
+        io.to(this.playerB.id).socketsJoin(this.playerB.id);
         this.date = new Date();
-        this.createPlayer(id, false); 
-        this.createPong(this.playerA, this.playerB, this.isAi);
-        this.status = 'active';
+        this.createPong();
+        this.engine = new GameEngine(io, this);
+        this.engine.start();
+        this.status = this.STATUS.ONGOING;
     }
 
     createPong()
     {
-        this.pong = new Pong();
+        this.pong = new Pong(this.width, this.height);
     }
 
-    setPlayer(id)
+
+    getPlayerById(id)
     {
-        this.playerA
+        if(this.playerA?.id === id)
+            return this.playerA;
+        else if(this.playerB?.id === id)
+            return this.playerB;
+        return null;
     }
 
 
-    getPlayerId()
-    {
-        return this.id;
-    }
     finishMatch(winnerId)
     {
-        this.status = this.statusArray[5]; //finished
+        this.status = this.STATUS.FINISHED;
         this.winner = winnerId;
         EventBus.publish("match_finished", this.serializeForDb()); 
+        this.destroy();
 
     }
 
@@ -148,4 +161,14 @@ export default class Match {
             date: this.date,
         }
     }
+
+    destroy()
+        {
+            this.engine?.stop();
+            this.engine = null;
+            this.pong = null;
+            this.playerA = null;
+            this.playerB = null;
+            this.status = this.STATUS.DEAFULT; ///or finished ???
+        }
 }

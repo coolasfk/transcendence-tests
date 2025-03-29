@@ -30,6 +30,13 @@ const pages = {
         <h2 id="gameResultText"></h2>
         <!-- Controls -->
         <div class="font-[teko] mt-6 flex gap-6">
+        <button 
+        id="inviteAccepted"
+        class="cursor-pointer font-[teko] font-light text-2xl px-10 line-through py-3 
+               text-white hover:bg-purple-300 transform hover:scale-105"
+      >
+        Start Game
+      </button>
           <button 
             id="startBtn"
             class="cursor-pointer font-[teko] font-light text-2xl px-10 line-through py-3 

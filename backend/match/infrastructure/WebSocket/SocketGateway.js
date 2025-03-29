@@ -9,7 +9,7 @@ import PlayerHuman from '../../domain/entities/PlayerHuman'
 
 
 
-class SocketGateway {
+export default class SocketGateway {
     constructor(httpServer)
     {
         this.io = new Server(httpServer, {
@@ -35,15 +35,21 @@ class SocketGateway {
             console.log("Socket disconnected", socket.id)
         })
 
+
+   
+    /*
         socket.on("join human match", ({userId, nickname}) => {
-            const player = new PlayerHuman(userId, nickname);
-            Match.setPlayer(player);
+
+            const match = new Match(uuid());
+            match.createPlayer(userId, nickname, false);
+
         })
 
-        socket.on("join match with ai", ({userId}) => {
-            const player = new PlayerAi(userId);
-            Match.setPlayer(player);
-        })
+        socket.on("join match with ai", ({userId, nickname}) => {
+            const match = new Match(uuid());
+            match.createPlayer(null, null, true);
+            match.createPlayer(userId, nickname, false);
+        })*/
 
     }
 }
