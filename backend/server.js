@@ -41,12 +41,9 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
     try{
 
-        const {yourId, yourNickname, oponnentId, oponnentNickname} = req.body;
+        const {userId, userNickname, oponnentId, oponnentNickname} = req.body;
 
-        const match = new Match(uuid());
-
-        match.createPlayer(yourId, yourNickname, false);
-        match.createPlayer(oponnentId, oponnentNickname, false);
+        const match = new Match(uuid(), userId, userNickname, oponnentId, oponnentNickname);
         match.startMatch(io);
 
         await matchRepo.save(match);

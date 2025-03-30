@@ -8,9 +8,14 @@ import SocketGateway from '../../infrastructure/WebSocket/SocketGateway.js'
 
 
 export default class Match {
-    constructor(id)
+    constructor(matchId, userId, userNickname, oponnentId, oponnentNickname)
     {
-        this.id = id;
+        this.matchId = matchId;
+        this.userId = userId;
+        this.oponnentId = oponnentId;
+        this.userNickname = userNickname;
+        this.oponnentNickname = oponnentNickname;
+
         this.pong = null;
         this.status = 'default';
         this.STATUS = {
@@ -20,11 +25,10 @@ export default class Match {
             ONGOING: 'ongoing',
             FINISHED: 'finished',
         };
-        this.date = null;
 
+        this.date = null;
         this.width = 1280;
         this.height = 720;
-        this.engine = null;
     }
 
     ////sending invitation to the user: when clicking on the send invitation to 
@@ -50,6 +54,8 @@ export default class Match {
         this.status = this.STATUS.DEAFULT;
     }
 
+    /*
+
     createPlayer(id, nickname, isAi)
     {
 
@@ -60,7 +66,8 @@ export default class Match {
         else throw new Error("Match has already two players");
 
 
-    }
+    }*/
+
 
     startMatch(io)
     {
@@ -80,10 +87,7 @@ export default class Match {
         
         */
 
-        if(!this.playerA || !this.playerB)
-        {
-            throw new Error("Both players must be set before the games starts!");
-        }
+        this.createPong()
         io.to(this.playerA.id).socketsJoin(this.playerA.id);
         io.to(this.playerB.id).socketsJoin(this.playerB.id);
         this.date = new Date();
