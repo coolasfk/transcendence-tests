@@ -2,13 +2,17 @@ import Fastify from "fastify";
 import cors from '@fastify/cors';
 import sqlite3 from "sqlite3";
 import dotenv from "dotenv";
+import {open} from 'sqlite';
+import {matchRepo} from 'matchRepo'
 import bcrypt from "bcryptjs";
 import { createServer } from 'http';
 import SocketGateway from './match/infrastructure/WebSocket/SocketGateway.js'
 import Match from "./match/domain/entities/Match.js";
 import {v4 as uuid} from 'uuid';
 import matchRepo from 'matchRepo'
+import http from 'http';
 import {io} from "./match/infrastructure/WebSocket/SocketGateway.js"
+import { initDbMatches } from "./initRepo.js";
 
 
 dotenv.config();
@@ -18,7 +22,7 @@ fastify.register(cors);
 const httpServer = createServer(fastify.server);
 const socketGateway = new SocketGateway(httpServer);
 
-
+await initDbMatches();
 
 const db = new sqlite3.Database("./trans_backend.db", (err) => {
     if (err) console.log("Error in the back: ", err);
@@ -33,7 +37,7 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 
 
 
-fastify.post("/api/match/yourInviteGotAccepted", async (req, res) => {
+fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
     try{
 
@@ -44,7 +48,10 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, res) => {
         match.createPlayer(yourId, yourNickname, false);
         match.createPlayer(oponnentId, oponnentNickname, false);
         match.startMatch(io);
-        return reply.status(200).send({message: "Match successfully created"});
+
+        await matchRepo.save(match);
+
+        return reply.status(200).send({message: "Match successfully created", matchId: match.id});
         
 
     } catch(err)
@@ -136,4 +143,5 @@ const startServer = async () => {
 
 
 startServer();
+export {io};
 

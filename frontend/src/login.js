@@ -45,21 +45,6 @@ export const setUpLogin = () => {
       if (response.ok) {
         alert(result.message, result.nickname);
 
-        /*
-        const {nickname} = result;
-
-        localStorage.setItem("nickname", nickname);
-        currentUser =  nickname;
-        loadPage("home");
-
-
-        setTimeout(() => {
-          const player2 = document.getElementById("player2");
-          if(player2)
-          {
-            player2.textContent = nickname;
-          }
-        },  100);*/
       } else {
         alert(result.message || "Login failed.");
       }
