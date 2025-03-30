@@ -2,6 +2,8 @@
 
 
 import Pong from '../valueObjects/Pong.js'
+import PlayerAi from './PlayerAi'
+import PlayerHuman from './PlayerHuman.js'
 import EventBus from '../../infrastructure/EventBus.js';
 import GameEngine from '../../infrastructure/GameEngine.js';
 import SocketGateway from '../../infrastructure/WebSocket/SocketGateway.js'
@@ -11,7 +13,15 @@ export default class Match {
     constructor(id)
     {
         this.id = id;
+        this.opponentId = null;  /// we have to invite the user, or click on start ai /// we have to get id from the front
+
+        this.playerA = null;
+        this.playerB = null;
         this.pong = null;
+        this.isAi = false;
+        
+        this.finalScoreA = 0;
+        this.finalScoreB = 0;
         this.status = 'default';
         this.STATUS = {
             DEAFULT: 'default',
@@ -20,6 +30,7 @@ export default class Match {
             ONGOING: 'ongoing',
             FINISHED: 'finished',
         };
+        this.winner = null;
         this.date = null;
 
         this.width = 1280;
@@ -88,6 +99,8 @@ export default class Match {
         io.to(this.playerB.id).socketsJoin(this.playerB.id);
         this.date = new Date();
         this.createPong();
+        this.engine = new GameEngine(io, this);
+        this.engine.start();
         this.status = this.STATUS.ONGOING;
     }
 
@@ -140,11 +153,11 @@ export default class Match {
     serializeForDb()
     {
         return {
-            userA_id: this.pong.playerA.id,
-            userB_id: this.pong.playerB.id,
-            scoreA: this.pong.finalScoreA,
-            scoreB: this.pong.finalScoreB,
-            winnerId: this.pong.getWinnerId(),
+            userA_id: this.playerA?.id || null,
+            userB_id: this.playerB?.id || null,
+            scoreA: this.finalScoreA,
+            scoreB: this.finalScoreB,
+            winnerId: this.winner,
             date: this.date,
         }
     }

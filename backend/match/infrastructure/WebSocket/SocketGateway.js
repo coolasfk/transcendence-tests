@@ -36,20 +36,5 @@ export default class SocketGateway {
         })
 
 
-   
-    /*
-        socket.on("join human match", ({userId, nickname}) => {
-
-            const match = new Match(uuid());
-            match.createPlayer(userId, nickname, false);
-
-        })
-
-        socket.on("join match with ai", ({userId, nickname}) => {
-            const match = new Match(uuid());
-            match.createPlayer(null, null, true);
-            match.createPlayer(userId, nickname, false);
-        })*/
-
     }
 }

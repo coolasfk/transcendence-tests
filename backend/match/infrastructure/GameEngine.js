@@ -24,25 +24,27 @@ export default class GameEngine
 
     update()
     {
-        this.match.pong.update();
+        if(!this.match || !this.match.STATUS !== ONGOING)
+            return;
+        this.match.update();
 
-        const state = {
-            ball: this.match.pong.ball,
-            leftPaddleY: this.match.playerA.paddle,
-            rightPaddleY: this.match.playerB.paddle,
-            scoreA: this.match.finalScoreA,
-            scoreB: this.match.finalScoreB           
-        };
+        const state = this.match.pong.serialize();
+
         this.io.to(this.match.id).emit("state_update", state);
+
+        if(this.match.pong.isGameOver())
+        {
+            this.match.finishMatch();
+            this.stop();
+        }
     }
 
     handleInput({playerId, up, down})
     {
-        const player = this.match.getPlayerById(playerId);
-        if(!player)
+        if(!this.match || this.match.STATUS != ONGOING)
             return;
-        if(up) player.paddle.moveUp();
-        else if (down) player.paddle.moveDown();
-        else player.paddle.stop();
+        
+
+        this.match.handleInput(playerId, up, down);
     }
 }
