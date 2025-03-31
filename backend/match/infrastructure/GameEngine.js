@@ -24,9 +24,19 @@ export default class GameEngine
 
     update()
     {
-        if(!this.match || !this.match.STATUS !== ONGOING)
+        if(!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;
         this.match.update();
+
+        if(this.match.pong.didScoreLeft()) {
+            this.match.updateScore(this.match.playerA.id);
+            this.match.pong.resetBall();
+        } else if (this.match.pong.didScoreRight())
+        {
+            this.match.updateScore(this.match.playerB.id);
+            this.match.pong.resetBall();
+        }
+
 
         const state = this.match.pong.serialize();
 

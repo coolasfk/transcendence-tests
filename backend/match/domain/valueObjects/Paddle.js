@@ -29,7 +29,7 @@ export default class Paddle
     update(canvasHeight)
     {
         this.y += this.direction * this.speed;
-        this.y = Math.max(0, )
+        this.y = Math.max(0, canvasHeight - this.height)
 
 
     }

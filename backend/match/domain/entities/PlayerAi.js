@@ -1,5 +1,5 @@
-import Paddle from "../valueObjects/Paddle";
-import Player from "./Player";
+import Paddle from "../valueObjects/Paddle.js";
+import Player from "./Player.js";
 
 
 export default class PlayerAi extends Player

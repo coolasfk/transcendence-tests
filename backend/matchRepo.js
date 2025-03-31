@@ -1,4 +1,4 @@
-import { getDb } from "./initRepo";
+import { getDb } from "./initRepo.js";
 import match from "./match/domain/entities/Match.js"
 
 

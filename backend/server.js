@@ -3,48 +3,46 @@ import cors from '@fastify/cors';
 import sqlite3 from "sqlite3";
 import dotenv from "dotenv";
 import {open} from 'sqlite';
-import {matchRepo} from 'matchRepo'
+import {matchRepo} from './matchRepo.js'
 import bcrypt from "bcryptjs";
 import { createServer } from 'http';
 import SocketGateway from './match/infrastructure/WebSocket/SocketGateway.js'
 import Match from "./match/domain/entities/Match.js";
 import {v4 as uuid} from 'uuid';
-import matchRepo from 'matchRepo'
 import http from 'http';
-import {io} from "./match/infrastructure/WebSocket/SocketGateway.js"
-import { initDbMatches } from "./initRepo.js";
+import {initDatabase, getDb} from "./initRepo.js";
 
 
 dotenv.config();
 
 const fastify = Fastify();
-fastify.register(cors);
+await fastify.register(cors, {
+    origin: "*",
+});
+
+
+
+
+fastify.get("/api/health", async(req, reply) => {
+    console.log("checking health");
+    return reply.status(200).send({status: "pong"});
+
+});
+
 const httpServer = createServer(fastify.server);
 const socketGateway = new SocketGateway(httpServer);
 
-await initDbMatches();
-
-const db = new sqlite3.Database("./trans_backend.db", (err) => {
-    if (err) console.log("Error in the back: ", err);
-    else console.log("Connected to the database!");
-});
-
-db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nickname TEXT UNIQUE NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL)`);
-
-
-
 fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
+    console.log("------your invite got accepted (server.js)")
     try{
 
-        const {userId, userNickname, oponnentId, oponnentNickname} = req.body;
+        console.log("------your invite got accepted (server.js)")
 
-        const match = new Match(uuid(), userId, userNickname, oponnentId, oponnentNickname);
-        match.startMatch(io);
+        const {userId, userNickname, oponnentId, oponnentNickname} = req.body;
+        console.log("logs invite accepted", userId, userNickname, oponnentId,oponnentNickname);
+        const match = new Match(uuid(), userId, userNickname, oponnentId, oponnentNickname, false);
+        match.startMatch(socketGateway.getIo());
 
         await matchRepo.save(match);
 
@@ -55,15 +53,14 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
     {
         console.log("error at /api.natch/yourInviteGotAccepted", err);
         return reply.status(400).send({message: err});
-    }
-   
+    }  
 
 })
 
 fastify.post("/api/register", async (request, reply) => {
-    console.log("check 27");
     console.log(request.body);
-    console.log("check 29");
+    const db = getDb();
+
     const { nickname, email, password } = request.body;
 
     if (!nickname || !email || !password) {
@@ -91,7 +88,7 @@ fastify.post("/api/login", async (req, reply) => {
     if (!email || !password) {
         return reply.status(400).send({ message: "Missing credentials!" });
     }
-
+    const db = getDb();
     db.get("SELECT * FROM users WHERE email = ?", [email], async (err, user) => {
         if (err) {
             console.log("DB error:", err);
@@ -118,27 +115,29 @@ fastify.post("/api/login", async (req, reply) => {
 
 /// basically we dont have to make a promise but i wanted ;D
 
-const startServer = async () => {
-
+const startServer = async() => {
     try {
-        await new Promise((resolve, reject) => {
-            httpServer.once("error", reject);
+        await initDatabase();
 
-            httpServer.listen(5000, () => {
-                console.log("server is listening on http://localhost:5000");
-                resolve();
-            });
-        })
+        const address = await fastify.listen({port: 5000, host: "0.0.0.0"});
+        console.log("server is listening on: ", address);
+
+        //const socketGateway = new socketGateway(fastify.server);
 
     } catch (err) {
-        console.error("errror caught", err);
-        fastify.log.error(err)
+        fastify.log.error(err);
         process.exit(1);
-    }
-};
 
+    }
+}
 
 
 startServer();
-export {io};
+
+
+
+
+
+
+
 

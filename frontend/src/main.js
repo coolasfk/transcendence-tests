@@ -1,8 +1,14 @@
-import { io } from "socket.io-client";
+//import { io } from "socket.io-client";
 const socket = io("http://localhost:5000");
-  const userId = Math.floor(Math.random() * 1000000);
+
+console.log("hello from main.js");
+export const userId = Math.floor(Math.random() * 1000000);
   console.log("User ID:", userId);
+
+
+
 export const  initGame = async () => {
+
   console.log("Initializing the game...");
 
   const nickname = prompt("Type your nickname:");
@@ -36,7 +42,7 @@ export const  initGame = async () => {
 //---------------------------------------------
 
 
- /// emitting events to the back
+
   const movePaddleUp = () => {
     socket.emit("player_input", {
       userId,
@@ -61,7 +67,6 @@ export const  initGame = async () => {
     });
   };
 
-/*
   if(startAiGameBtn)
   {
     startAiGameBtn.addEventListener("click", () => {
@@ -81,16 +86,23 @@ export const  initGame = async () => {
       });
     });
   }
-*/
 
 
 
+document.getElementById("inviteAccepted").addEventListener("click", async() => {
+
+console.log("INVITE CLICKED");
 
 try {
   const response = await fetch ("http://localhost:5000/api/match/yourInviteGotAccepted", {
     method: "POST", 
-    headers: {"Content-Type": "apllication/json"},
-    body: JSON.stringify({userId, nickname, oponnentId, oponnentNickname}),
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      userId: "666",
+      nickname: "stefan",
+      oponnentId: "123",
+      oponnentNickname: "oponnent_name",
+      }),
   });
   if(response.ok)
   {
@@ -98,17 +110,17 @@ try {
   }
   else
   {
-    alert(result.message || "Cannot start the game");
+    alert("error fetch your invite got accepted", result.message || "Cannot start the game");
   }
 } catch(error)
 {
   console.error("Error: cannot start the game from the invitation: ", error);
-  alert("Cannot start the game from the invite, come back later");
+  alert("Cannot start the game from the invite", error);
 }
 
 
 
-
+})
 
 
 
@@ -146,7 +158,7 @@ try {
 //it's a full game state sent fron the back: where the ball is, where the paddles are, 
 // what the score is, if the game ended 
 
-
+/*
   socket.on("state_update", (state) => {
     ball = state.ball;
     leftPaddleY = state.leftPaddleY;
@@ -157,7 +169,7 @@ try {
   });
 
 
-
+*/
 
   ///// drawing the scene: ---------
 
@@ -199,6 +211,8 @@ try {
 
   drawScene(); 
 };
+
+
 
 socket.on("match_over", (matchData) => {
   const {winnerId, userA_id, userB_id, scoreA, scoreB} = matchData;

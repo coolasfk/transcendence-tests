@@ -1,4 +1,5 @@
 
+
 const pages = {
     home: `
       <!-- HOME PAGE -->
@@ -35,7 +36,7 @@ const pages = {
         class="cursor-pointer font-[teko] font-light text-2xl px-10 line-through py-3 
                text-white hover:bg-purple-300 transform hover:scale-105"
       >
-        Start Game
+        Invite accepted!
       </button>
           <button 
             id="startBtn"
@@ -185,14 +186,25 @@ const pages = {
     `,
   };
   
+
+
+
   export const loadPage = async (page) => {
     const app = document.getElementById("app");
     ////------!!!!!! add sanitizer here
     app.innerHTML = pages[page] || "<h1>Page not found.</h1>";
+
+   attachEventListeners(page);
   
     if (page === "home") {
+      console.log("we are at home");
       const mainModule = await import("./main.js");
-      mainModule.initGame();
+      setTimeout(()=> {
+
+   mainModule.initGame();
+      }, 0)
+   
+      console.log("after initgame was called");
     } else if (page === "register") {
       const registerModule = await import("./register.js");
       registerModule.setUpRegister();
@@ -202,7 +214,7 @@ const pages = {
         loginModule.setUpLogin();
 
     }
-    attachEventListeners(page);
+
   } 
 
 
@@ -222,6 +234,7 @@ const pages = {
 const attachEventListeners = (page) => {
     if (page === "home")
     {
+
         const registerBtn = document.getElementById("registerBtn");
         if(registerBtn) {
             registerBtn.addEventListener("click", () => loadPage("register"));
@@ -251,7 +264,7 @@ const attachEventListeners = (page) => {
 
   window.onload = () => loadPage("home");
   document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("registerBtn").addEventListener("click", () => loadPage("register"));
+  document.getElementById("registerBtn").addEventListener("click", () => loadPage("register"));
   })
 
   window.loadPage = loadPage;

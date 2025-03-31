@@ -1,4 +1,4 @@
-import Match from '../domain/entities/Match.js'
+
 
 
 export default class EventBus {
@@ -7,7 +7,10 @@ export default class EventBus {
     }
   
     subscribe(event, callback) {
-      if (!this.subscribers[event]) this.subscribers[event] = [];
+      if (!this.subscribers[event]) 
+      {
+        this.subscribers[event] = [];
+      }
       this.subscribers[event].push(callback);
     }
   

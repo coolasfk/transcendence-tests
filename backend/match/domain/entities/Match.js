@@ -3,18 +3,16 @@
 
 import Pong from '../valueObjects/Pong.js'
 import EventBus from '../../infrastructure/EventBus.js';
-import GameEngine from '../../infrastructure/GameEngine.js';
-import SocketGateway from '../../infrastructure/WebSocket/SocketGateway.js'
-
 
 export default class Match {
-    constructor(matchId, userId, userNickname, oponnentId, oponnentNickname)
+    constructor(matchId, userId, userNickname, oponnentId, oponnentNickname, isAi)
     {
         this.matchId = matchId;
         this.userId = userId;
         this.oponnentId = oponnentId;
         this.userNickname = userNickname;
         this.oponnentNickname = oponnentNickname;
+        this.isAi = isAi;
 
         this.pong = null;
         this.status = 'default';
@@ -88,8 +86,8 @@ export default class Match {
         */
 
         this.createPong()
-        io.to(this.playerA.id).socketsJoin(this.playerA.id);
-        io.to(this.playerB.id).socketsJoin(this.playerB.id);
+        io.to(this.userId).socketsJoin(this.userId);
+        io.to(this.oponnentId).socketsJoin(this.oponnentId);
         this.date = new Date();
         this.createPong();
         this.status = this.STATUS.ONGOING;
@@ -97,18 +95,9 @@ export default class Match {
 
     createPong()
     {
-        this.pong = new Pong(this.width, this.height);
+        this.pong = new Pong(this.width, this.height, this.userId, this.oponnentId,  this.userNickname, this.oponnentNickname, this.isAi);
     }
 
-
-    getPlayerById(id)
-    {
-        if(this.playerA?.id === id)
-            return this.playerA;
-        else if(this.playerB?.id === id)
-            return this.playerB;
-        return null;
-    }
 
 
     finishMatch(winnerId)
@@ -124,18 +113,18 @@ export default class Match {
     {
         if(!this.playerA || !this.playerB) return;
 
-        if(playerId === this.playerA.id)
+        if(playerId === this.pong.playerA)
             this.finalScoreA++;
-        if(playerId === this.playerB.id)
+        if(playerId === this.pong.playerB)
             this.finalScoreB++;
         
         if(this.finalScoreB >= 5) 
         {
-            this.finishMatch(this.playerB.id);
+            this.finishMatch(this.pong.playerB);
         }
         else if(this.finalScoreA >= 5)
         {
-            this.finishMatch(this.playerA.id);
+            this.finishMatch(this.pong.playerA);
         } 
 
     }
@@ -144,22 +133,21 @@ export default class Match {
     serializeForDb()
     {
         return {
-            userA_id: this.pong.playerA.id,
-            userB_id: this.pong.playerB.id,
+            matchId: this.matchId,
+            userA_id: this.pong.userId,
+            userB_id: this.pong.oponnentId,
             scoreA: this.pong.finalScoreA,
             scoreB: this.pong.finalScoreB,
-            winnerId: this.pong.getWinnerId(),
+            winnerId: this.pong.finalScoreA > this.pong.finalScoreB ? this.pong.finalScoreA : this.pong.finalScoreB,
             date: this.date,
         }
     }
 
     destroy()
         {
-            this.engine?.stop();
-            this.engine = null;
+  
             this.pong = null;
-            this.playerA = null;
-            this.playerB = null;
+
             this.status = this.STATUS.DEAFULT; ///or finished ???
         }
 }
