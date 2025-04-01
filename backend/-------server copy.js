@@ -18,21 +18,21 @@ dotenv.config();
 
 const fastify = Fastify();
 
+await fastify.register(fastifyIO);
+/*
 await fastify.register(cors, {
     origin: "*",
 });
 
+*/
 
-await fastify.register(fastifyIO, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
+fastify.get("/api/health", async(req, reply) => {
+    console.log("checking health");
+    return reply.status(200).send({status: "pong"});
+
 });
 
-
 const httpServer = createServer(fastify.server);
-
 let socketGateway = new SocketGateway(httpServer);
 
 fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
@@ -42,9 +42,9 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
         console.log("------your invite got accepted (server.js)")
 
-        const {userId, nickname, oponnentId, oponnentNickname} = req.body;
-        console.log("logs invite accepted", userId, nickname, oponnentId,oponnentNickname);
-        const match = new Match(uuid(), userId, nickname, oponnentId, oponnentNickname, false);
+        const {userId, userNickname, oponnentId, oponnentNickname} = req.body;
+        console.log("logs invite accepted", userId, userNickname, oponnentId,oponnentNickname);
+        const match = new Match(uuid(), userId, userNickname, oponnentId, oponnentNickname, false);
         match.startMatch(socketGateway.getIo());
 
         await matchRepo.save(match);
@@ -59,17 +59,6 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
     }  
 
 })
-
-
-/////// -------- test
-
-fastify.get("/api/health", async(req, reply) => {
-    console.log("checking health");
-    return reply.status(200).send({status: "pong"});
-
-});
-
-///// ------- test end
 
 fastify.post("/api/register", async (request, reply) => {
     console.log(request.body);
@@ -145,34 +134,26 @@ const startServer = async() => {
     }
 }*/
 
-/*
+
 const startServer = async () => {
   try {
     await initDatabase();
     await new Promise((resolve, reject) => {
-      httpServer.once("error", reject);
-      httpServer.listen(5000, "0.0.0.0", () => {
-        console.log("Listening on http://localhost:5000");
-        resolve();
-     });
+        //httpServer.listen({port: 5000, host: "0.0.0.0"});
+        fastify.listen(5000);
+      //httpServer.once("error", reject);
+      //httpServer.listen(5000, "0.0.0.0", () => {
+        //console.log("Listening on http://localhost:5000");
+        //resolve();
+     // });
     });
   } catch (err) {
     console.error("Error starting server:", err);
     process.exit(1);
   }
-};*/
+};
 
-fastify.ready().then(() => {
-    initDatabase();
-    fastify.io.on("connection", (socket) => {
-        console.log("socket ready");
-    })
-    fastify.listen({port: 5000});
-    console.log("server listening on port 5000");
-})
-
-
-//startServer();
+startServer();
 
 
 

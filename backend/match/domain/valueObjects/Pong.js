@@ -2,6 +2,7 @@
 import PlayerAi from "../entities/PlayerAi.js";
 import PlayerHuman from "../entities/PlayerHuman.js";
 import Ball from "./Ball.js";
+import Paddle from "./Paddle.js";
 
 
 export default class Pong 
@@ -11,12 +12,16 @@ export default class Pong
         this.width = width;
         this.height = height;
 
+        this.playerA_id = playerA_id;
+        this.playerB_id = playerB_id;
+
         this.playerA = new PlayerHuman(playerA_id, nicknameA);
+
 
         this.playerB = isAi ? new PlayerAi(playerB_id, null) : new PlayerHuman(playerB_id, nicknameB);
 
 
-        this.ball = new Ball(width, height);
+        this.ball = new Ball(width/2, height/2);
 
 
         
@@ -36,13 +41,19 @@ export default class Pong
         })
     }
 
-    movePaddle(playerId, direction)
+    movePaddle(playerId, up, down)
     {
-        const paddle = this.getPaddle(playerId);
+        let paddle;
+        if(playerId === this.playerA_id)
+            paddle = this.playerA.paddle;
+        if(playerId === this.playerB_id)
+            paddle = this.playerB.paddle;
+
+
         if(!paddle) return;
 
-        if(direction === 'up') paddle.moveUp();
-        else if(direction === 'down') paddle.moveDown();
+        if(up) paddle.moveUp();
+        else if(down) paddle.moveDown();
         else paddle.stop();
     }
 

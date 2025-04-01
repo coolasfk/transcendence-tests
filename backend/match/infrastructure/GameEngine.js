@@ -24,16 +24,18 @@ export default class GameEngine
 
     update()
     {
+
+        console.log("********* loop going");
         if(!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;
-        this.match.update();
 
+        this.match.pong.ball.update();
         if(this.match.pong.didScoreLeft()) {
-            this.match.updateScore(this.match.playerA.id);
+            this.match.updateScore(this.match.playerA_id);
             this.match.pong.resetBall();
         } else if (this.match.pong.didScoreRight())
         {
-            this.match.updateScore(this.match.playerB.id);
+            this.match.updateScore(this.match.playerB_id);
             this.match.pong.resetBall();
         }
 
@@ -42,19 +44,18 @@ export default class GameEngine
 
         this.io.to(this.match.id).emit("state_update", state);
 
-        if(this.match.pong.isGameOver())
-        {
-            this.match.finishMatch();
-            this.stop();
-        }
+        if (!this.match || this.match.status !== this.match.STATUS.ONGOING)
+            return;
     }
 
-    handleInput({playerId, up, down})
+    /*handleInput({playerId, up, down})
     {
         if(!this.match || this.match.STATUS != ONGOING)
             return;
         
 
         this.match.handleInput(playerId, up, down);
-    }
+    }*/
+
+
 }

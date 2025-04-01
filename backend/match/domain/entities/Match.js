@@ -3,6 +3,7 @@
 
 import Pong from '../valueObjects/Pong.js'
 import EventBus from '../../infrastructure/EventBus.js';
+import GameEngine from '../../infrastructure/GameEngine.js';
 
 export default class Match {
     constructor(matchId, userId, userNickname, oponnentId, oponnentNickname, isAi)
@@ -17,7 +18,7 @@ export default class Match {
         this.pong = null;
         this.status = 'default';
         this.STATUS = {
-            DEAFULT: 'default',
+            DEFAULT: 'default',
             PENDING: 'pending',
             LAUNCING: 'launching',
             ONGOING: 'ongoing',
@@ -44,12 +45,12 @@ export default class Match {
 
     declineInvitation()
     {
-        this.status = this.STATUS.DEAFULT;
+        this.status = this.STATUS.DEFAULT;
     }
 
     cancelMatch()
     {
-        this.status = this.STATUS.DEAFULT;
+        this.status = this.STATUS.DEFAULT;
     }
 
     /*
@@ -85,12 +86,17 @@ export default class Match {
         
         */
 
+       
+
         this.createPong()
         io.to(this.userId).socketsJoin(this.userId);
         io.to(this.oponnentId).socketsJoin(this.oponnentId);
         this.date = new Date();
         this.createPong();
         this.status = this.STATUS.ONGOING;
+        this.engine = new GameEngine(io, this) ;
+        this.engine.start();
+        console.log("match: startMatch starting the game")
     }
 
     createPong()
@@ -147,7 +153,9 @@ export default class Match {
         {
   
             this.pong = null;
+            this.engine.stop();
+            this.engine = null;
 
-            this.status = this.STATUS.DEAFULT; ///or finished ???
+            this.status = this.STATUS.DEFAULT; ///or finished ???
         }
 }

@@ -24,7 +24,7 @@ export default class Match {
         this.finalScoreB = 0;
         this.status = 'default';
         this.STATUS = {
-            DEAFULT: 'default',
+            DEFAULT: 'default',
             PENDING: 'pending',
             LAUNCING: 'launching',
             ONGOING: 'ongoing',
@@ -53,12 +53,12 @@ export default class Match {
 
     declineInvitation()
     {
-        this.status = this.STATUS.DEAFULT;
+        this.status = this.STATUS.DEFAULT;
     }
 
     cancelMatch()
     {
-        this.status = this.STATUS.DEAFULT;
+        this.status = this.STATUS.DEFAULT;
     }
 
     createPlayer(id, nickname, isAi)
@@ -169,6 +169,6 @@ export default class Match {
             this.pong = null;
             this.playerA = null;
             this.playerB = null;
-            this.status = this.STATUS.DEAFULT; ///or finished ???
+            this.status = this.STATUS.DEFAULT; ///or finished ???
         }
 }

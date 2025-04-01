@@ -52,6 +52,6 @@ export const matchRepo = {
             userId
 
         )
-    }
+    },
 
 }

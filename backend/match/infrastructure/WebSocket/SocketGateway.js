@@ -1,6 +1,7 @@
 
 
 import {Server} from 'socket.io';
+import { matchRepo } from '../../../matchRepo.js';
 import EventBus from '../EventBus.js';
 import GameEngine from '../GameEngine.js';
 
@@ -18,9 +19,17 @@ export default class SocketGateway {
 
     _setupListeners()
     {
+        console.log("setting up the listeners in socketgateway");
         ///strings like connection , disconnect are given by socket.io 
         this.io.on('connection', (socket) => {
             console.log("Socket connected:", socket.id);
+
+        socket.on("user_input", ({userId, up, down}) => {
+            const match = matchRepo.findById(userId);
+            if(!match)
+                return;
+            match.pong.movePaddle(userId, up, down); 
+        })
 
         socket.on('disconnect', () => {
             console.log("Socket disconnected", socket.id);
@@ -31,6 +40,7 @@ export default class SocketGateway {
 
     _subscribeToMatchEvents() 
     {
+        console.log("subscibe to match events inside the socket gatewat");
         const eventBus = new EventBus();
         eventBus.subscribe("match_created", (match) => {
             console.log("Match created -> Starting game engine", match.id);

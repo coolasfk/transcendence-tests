@@ -7,6 +7,7 @@ export default class EventBus {
     }
   
     subscribe(event, callback) {
+      console.log("subscribing to events");
       if (!this.subscribers[event]) 
       {
         this.subscribers[event] = [];
@@ -15,6 +16,7 @@ export default class EventBus {
     }
   
     publish(event, payload) {
+      console.log("publishing events");
       if (this.subscribers[event]) {
         for (const cb of this.subscribers[event]) {
           cb(payload);

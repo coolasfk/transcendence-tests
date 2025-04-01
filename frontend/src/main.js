@@ -24,7 +24,6 @@ export const  initGame = async () => {
   const startBtn = document.getElementById("startBtn");
   const resetBtn = document.getElementById("resetBtn");
   const startAiGameBtn = document.getElementById("startAiGameBtn");
-  const inviteAccepted = document.getElementById("inviteAccepted");
 
 //-------------------------------------
 
@@ -44,6 +43,7 @@ export const  initGame = async () => {
 
 
   const movePaddleUp = () => {
+    console.log("---front: move paddle up");
     socket.emit("player_input", {
       userId,
       up: true,
@@ -51,7 +51,12 @@ export const  initGame = async () => {
     });
   };
 
+
+
+
+
   const movePaddleDown = () => {
+    console.log("---front: move paddle down");
     socket.emit("player_input", {
       userId,
       up: false,
@@ -99,7 +104,7 @@ try {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
       userId: "666",
-      nickname: "stefan",
+      nickname: "eva",
       oponnentId: "123",
       oponnentNickname: "oponnent_name",
       }),
