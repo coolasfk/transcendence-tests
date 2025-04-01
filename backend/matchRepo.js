@@ -7,25 +7,27 @@ import match from "./match/domain/entities/Match.js"
 export const matchRepo = {
 
     async save(match) {
+        console.log("🤝 saving match in the database");
         const db = getDb();
         const data = match.serializeForDb();
         await db.run(
-            `INSERT INTO matches (id, userA_id, userB_id, scoreA, scoreB, winnerId, date)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(id) DO UPDATE SET
-            scoreA = excluded.scoreA,
-            scoreB = excluded.scoreB,
-            winnerId = excluded.winnerId,
-            date = excluded.date`,   
-            
-            data.id,
-            data.userA_id,
-            data.userB_id,
-            data.scoreA,
-            data.scoreB,
-            data.winnerId,
-            data.date.toISOString()
-        );
+            `INSERT INTO matches (matchId, userA_id, userB_id, scoreA, scoreB, winnerId, date)
+             VALUES (?, ?, ?, ?, ?, ?, ?)
+             ON CONFLICT(id) DO UPDATE SET
+               scoreA = excluded.scoreA,
+               scoreB = excluded.scoreB,
+               winnerId = excluded.winnerId,
+               date = excluded.date`,
+            [
+              data.matchId,
+              data.userA_id,
+              data.userB_id,
+              data.scoreA,
+              data.scoreB,
+              data.winnerId,
+              data.date.toISOString()
+            ]
+          );
     },
 
     async findById(id) {

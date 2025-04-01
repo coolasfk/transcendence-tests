@@ -10,21 +10,23 @@ export default class GameEngine
         this.loop = null;
         this.timeStart = new Date();
         this.timeNow = new Date(); 
+        this.i = 0;
 
     }
+    
 
     start() 
     {
-        this.loop = setInterval(() => this.update(), 1000/60); /// 60 frames 
+        this.loop = setInterval(() => this.update(this.i++), 1000/60); /// 60 frames 
     }
 
     stop(){
         clearInterval(this.loop);
     }
 
-    update()
+    update(i)
     {
-
+        if(i % 200 === 0)
         console.log("********* loop going");
         if(!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;
@@ -42,7 +44,7 @@ export default class GameEngine
 
         const state = this.match.pong.serialize();
 
-        this.io.to(this.match.id).emit("state_update", state);
+        this.io.to(this.match.matchId).emit("state_update", state);
 
         if (!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;

@@ -22,27 +22,27 @@ export default class SocketGateway {
         console.log("setting up the listeners in socketgateway");
         ///strings like connection , disconnect are given by socket.io 
         this.io.on('connection', (socket) => {
-            console.log("Socket connected:", socket.id);
-
-        socket.on("user_input", ({userId, up, down}) => {
-            const match = matchRepo.findById(userId);
-            if(!match)
-                return;
-            match.pong.movePaddle(userId, up, down); 
-        })
-
-        socket.on('disconnect', () => {
-            console.log("Socket disconnected", socket.id);
-        });
-
-    });
+            console.log("--- Socket connected:", socket.id);
+          
+            socket.on("player_input", ({ userId, up, down }) => {
+              console.log("player_input received from frontend!", userId, up, down);
+          
+              const match = matchRepo.findById(userId);
+              if (!match) return;
+              match.pong.movePaddle(userId, up, down);
+            });
+          
+            socket.on('disconnect', () => {
+              console.log("Socket disconnected", socket.id);
+            });
+          });
+          
 }
 
     _subscribeToMatchEvents() 
     {
         console.log("subscibe to match events inside the socket gatewat");
-        const eventBus = new EventBus();
-        eventBus.subscribe("match_created", (match) => {
+        EventBus.subscribe("match_created", (match) => {
             console.log("Match created -> Starting game engine", match.id);
             const engine = new GameEngine(this.io, match);
             engine.start();

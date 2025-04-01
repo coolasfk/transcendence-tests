@@ -1,11 +1,19 @@
-//import { io } from "socket.io-client";
+
+//import {v4 as uuidv4 } from "uuid"
+
+
 const socket = io("http://localhost:5000");
+
+socket.on("connect", () => {
+  console.log("socket connected", socket.id);
+})
 
 console.log("hello from main.js");
 export const userId = Math.floor(Math.random() * 1000000);
   console.log("User ID:", userId);
 
-
+  export const matchId = Math.floor(Math.random() * 1000000);
+  console.log("Match ID:", userId);
 
 export const  initGame = async () => {
 
@@ -41,10 +49,13 @@ export const  initGame = async () => {
 //---------------------------------------------
 
 
+//let matchId = uuidv4();
+//let matchId = Math.floor(Math.random() * 100000)
 
   const movePaddleUp = () => {
     console.log("---front: move paddle up");
     socket.emit("player_input", {
+      matchId,
       userId,
       up: true,
       down: false,
@@ -58,6 +69,7 @@ export const  initGame = async () => {
   const movePaddleDown = () => {
     console.log("---front: move paddle down");
     socket.emit("player_input", {
+      matchId,
       userId,
       up: false,
       down: true,
@@ -66,6 +78,7 @@ export const  initGame = async () => {
 
   const stopMoving = () => {
     socket.emit("player_input", {
+      matchId,
       userId,
       up: false,
       down: false,
@@ -103,8 +116,9 @@ try {
     method: "POST", 
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
+      matchId,
       userId: "666",
-      nickname: "eva",
+      nickname,
       oponnentId: "123",
       oponnentNickname: "oponnent_name",
       }),

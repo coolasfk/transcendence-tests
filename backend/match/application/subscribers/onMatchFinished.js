@@ -1,6 +1,8 @@
 import EventBus from "../../infrastructure/EventBus";
 import db from "../../../server.js";
 import {io} from "../../infrastructure/WebSocket/SocketGateway.js"
+//// modify to get db from the right place
+
 
 EventBus.subscribe("match_finished", (matchData) => {
 

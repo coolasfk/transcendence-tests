@@ -12,7 +12,6 @@ import Match from "./match/domain/entities/Match.js";
 import {v4 as uuid} from 'uuid';
 import http from 'http';
 import {initDatabase, getDb} from "./initRepo.js";
-import {matchMakingStore} from './match/infrastructure/matchMemoryStore.js';
 
 
 dotenv.config();
@@ -32,37 +31,9 @@ await fastify.register(fastifyIO, {
 });
 
 
-fastify.ready().then(() => {
-    initDatabase();
-    fastify.io.on("connection", (socket) => {
-        console.log("socket ready at server.js", socket.id); 
-        
-        socket.on("player_input", ({ matchId, userId, up, down }) => {
-        console.log("player_input received from frontend!", matchId, userId, up, down);
-    
-        const match = matchMakingStore.findById(matchId);
-        if (!match || !match.pong)
-        {
-            console.log("match does not exists 👻")
-            return;
-        } else
-        {
-            console.log("🚨🚨 TRYING TO MOVE THAT PADDLE 🚨🚨 ");
-            match.pong.movePaddle(userId, up, down);
-        }
-        
-      });
-    
-      socket.on('disconnect', () => {
-        console.log("Socket disconnected 👻", socket.id);
-      });
-    });
-   
-    fastify.listen({port: 5000});
-    console.log("server listening on port 5000");
-})
+const httpServer = createServer(fastify.server);
 
-/////move this to application layer ::: starting the match
+let socketGateway = new SocketGateway(httpServer);
 
 fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
@@ -71,26 +42,19 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
         console.log("------your invite got accepted (server.js)")
 
-        const {matchId, userId, nickname, oponnentId, oponnentNickname} = req.body;
+        const {userId, nickname, oponnentId, oponnentNickname} = req.body;
         console.log("logs invite accepted", userId, nickname, oponnentId,oponnentNickname);
-        const match = new Match(matchId, userId, nickname, oponnentId, oponnentNickname, false);
-        match.startMatch(fastify.io);
+        const match = new Match(uuid(), userId, nickname, oponnentId, oponnentNickname, false);
+        match.startMatch(socketGateway.getIo());
 
-        await matchMakingStore.save(match);
-        if(match.pong)
-        {
-            console.log("checking if match is OK", match.pong.ball.radius)
-        } else
-        {
-            "something is off with saving to the database 👻";
-        }
+        await matchRepo.save(match);
 
         return reply.status(200).send({message: "Match successfully created", matchId: match.id});
         
 
     } catch(err)
     {
-        console.log("error at /api.match/yourInviteGotAccepted", err);
+        console.log("error at /api.natch/yourInviteGotAccepted", err);
         return reply.status(400).send({message: err});
     }  
 
@@ -196,7 +160,7 @@ const startServer = async () => {
     console.error("Error starting server:", err);
     process.exit(1);
   }
-}
+};*/
 
 fastify.ready().then(() => {
     initDatabase();
@@ -206,8 +170,6 @@ fastify.ready().then(() => {
     fastify.listen({port: 5000});
     console.log("server listening on port 5000");
 })
-;*/
-
 
 
 //startServer();
@@ -231,7 +193,7 @@ const startServer = async () => {
         });
       });
     } catch (err) {
-      console.error("Error starting server:", err);
+      console.error(" Error starting server:", err);
       process.exit(1);
     }
   };*/

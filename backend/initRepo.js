@@ -20,7 +20,7 @@ export const initDatabase = async () => {
 
   await db.exec(`
     CREATE TABLE IF NOT EXISTS matches (
-      id TEXT PRIMARY KEY,
+        matchId TEXT PRIMARY KEY,
       userA_id TEXT,
       userB_id TEXT,
       scoreA INTEGER,
@@ -30,11 +30,11 @@ export const initDatabase = async () => {
     );
   `);
 
-  console.log("✅ Database initialized with users & matches tables");
+  console.log("✔✔✔ Database initialized with users & matches tables");
   return db;
 };
 
 export const getDb = () => {
-  if (!db) throw new Error("❌ DB not initialized");
+  if (!db) throw new Error("DB not initialized");
   return db;
 };
