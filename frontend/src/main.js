@@ -13,7 +13,7 @@ export const userId = Math.floor(Math.random() * 1000000);
   console.log("User ID:", userId);
 
   export const matchId = Math.floor(Math.random() * 1000000);
-  console.log("Match ID:", userId);
+  console.log("--------->>>>Match ID:", matchId);
 
 export const  initGame = async () => {
 
@@ -177,18 +177,18 @@ try {
 //it's a full game state sent fron the back: where the ball is, where the paddles are, 
 // what the score is, if the game ended 
 
-/*
+
   socket.on("state_update", (state) => {
+    console.log("💅💅💅💅receving the state update from the front: BALL: ", state.ball.ballX, "LEFT PADDLE: ",  leftPaddleY)
     ball = state.ball;
     leftPaddleY = state.leftPaddleY;
     rightPaddleY = state.rightPaddleY;
-    scoreA = state.scoreA;
-    scoreB = state.scoreB
+    //scoreA = state.scoreA;
+    //scoreB = state.scoreB
     drawScene();
   });
 
 
-*/
 
   ///// drawing the scene: ---------
 
@@ -199,6 +199,7 @@ try {
 
   const drawBall = () => {
     ctx.beginPath();
+    console.log("ball checks:", ball.ballX, ball.ballY, ball.ballX );
     ctx.arc(ball.ballX, ball.ballY, ball.ballSize, 0, Math.PI * 2);
     ctx.fillStyle = "#305cde";
     ctx.fill();

@@ -43,6 +43,7 @@ export default class Pong
 
     movePaddle(playerId, up, down)
     {
+        console.log("MOve paddle at pong::: 🙆🙆trying to update the Paddle");
         let paddle;
         if(playerId === this.playerA_id)
             paddle = this.playerA.paddle;

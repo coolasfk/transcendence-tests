@@ -13,16 +13,19 @@ export default class Paddle
 
     moveUp()
     {
+        console.log("move up ^^^^");
         this.direction -= 1;
     }
 
     moveDown()
     {
+        console.log("move down //////");
         this.direction += 1;
     }
 
     stop()
     {
+        console.log("-------- stop ///////");
         this.direction = 0;
     }
 

@@ -43,8 +43,21 @@ export default class GameEngine
 
 
         const state = this.match.pong.serialize();
-
-        this.io.to(this.match.matchId).emit("state_update", state);
+        if(i % 200 === 0)
+        console.log("STATE UPDATE 💅💅💅💅::: ", state, "match id: ", this.match.matchId);
+        //this.io.to(this.match.matchId).emit("state_update", state);
+        this.io.to(this.match.userId).emit("state_update", state, (err, responses) => {
+            if(err &&  i % 200 === 0)
+                console.log("🤌🏽🤌🏽🤌🏽🤌🏽 error emitting state to the front : ", err);
+            if(responses &&  i % 200 === 0)
+                console.log("responses: ", responses);
+        });
+        this.io.to(this.match.oponnentId).emit("state_update", state, (err, responses) => {
+            if(err &&  i % 200 === 0)
+                console.log("🤌🏽🤌🏽🤌🏽🤌🏽 error emitting state to the front : ", err);
+            if(responses &&  i % 200 === 0)
+                console.log("responses: ", responses);
+        });
 
         if (!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;

@@ -88,7 +88,7 @@ export default class Match {
         */
 
        
-
+        
         this.createPong()
         io.to(this.userId).socketsJoin(this.userId);
         io.to(this.oponnentId).socketsJoin(this.oponnentId);

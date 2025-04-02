@@ -44,9 +44,9 @@ export default class Ball {
   
     serialize() {
       return {
-        x: this.x,
-        y: this.y,
-        radius: this.radius
+        ballX: this.x,
+        ballY: this.y,
+        ballSize: this.radius
       };
     }
   }

@@ -13,6 +13,7 @@ import {v4 as uuid} from 'uuid';
 import http from 'http';
 import {initDatabase, getDb} from "./initRepo.js";
 import {matchMakingStore} from './match/infrastructure/matchMemoryStore.js';
+import { userId } from "../frontend/src/main.js";
 
 
 dotenv.config();
@@ -40,6 +41,14 @@ fastify.ready().then(() => {
         socket.on("player_input", ({ matchId, userId, up, down }) => {
         console.log("player_input received from frontend!", matchId, userId, up, down);
     
+
+        fastify.io.on("connection", socket => {
+            socket.join("userRoom");
+          });
+
+
+
+
         const match = matchMakingStore.findById(matchId);
         if (!match || !match.pong)
         {
