@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import fastifyIO from 'fastify-socket.io';
+import websocketPlugin from '@fastify/websocket';
 import cors from '@fastify/cors';
 import sqlite3 from "sqlite3";
 import dotenv from "dotenv";
@@ -14,6 +14,8 @@ import http from 'http';
 import {initDatabase, getDb} from "./initRepo.js";
 import {matchMakingStore} from './match/infrastructure/matchMemoryStore.js';
 import { userId } from "../frontend/src/main.js";
+import { connect } from "http2";
+import { mkdirSync } from "fs";
 
 
 dotenv.config();
@@ -24,18 +26,40 @@ await fastify.register(cors, {
     origin: "*",
 });
 
+await fastify.register(websocketPlugin);
 
-await fastify.register(fastifyIO, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+
+
+
+fastify.get('/game', { websocket: true }, (connection, req) => {
+    console.log("client connected");
+  
+    connection.socket.on('message', (rawMessage) => {
+      try {
+        const msg = JSON.parse(rawMessage);
+  
+        if (msg.data && msg.type === "movePaddleUp") {
+        const {matchId, userId, up, down} = msg.data;
+          console.log("Input received:",  matchId, userId, up, down);
+  
+          connection.socket.send(JSON.stringify({
+
+            type: "input_received",
+            message: "Player input received"}))
+           
+        }
+      } catch (err) {
+        console.error("Invalid message", err);
+      }
+    });
+  });
+  
+
 
 
 fastify.ready().then(() => {
     initDatabase();
-    fastify.io.on("connection", (socket) => {
+    /*fastify.io.on("connection", (socket) => {
         console.log("socket ready at server.js", socket.id); 
         
         socket.on("player_input", ({ matchId, userId, up, down }) => {
@@ -65,7 +89,7 @@ fastify.ready().then(() => {
       socket.on('disconnect', () => {
         console.log("Socket disconnected 👻", socket.id);
       });
-    });
+    });*/
    
     fastify.listen({port: 5000});
     console.log("server listening on port 5000");
@@ -83,9 +107,9 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
         const {matchId, userId, nickname, oponnentId, oponnentNickname} = req.body;
         console.log("logs invite accepted", userId, nickname, oponnentId,oponnentNickname);
         const match = new Match(matchId, userId, nickname, oponnentId, oponnentNickname, false);
-        match.startMatch(fastify.io);
+        //match.startMatch(fastify.io);
 
-        await matchMakingStore.save(match);
+        matchMakingStore.save(match);
         if(match.pong)
         {
             console.log("checking if match is OK", match.pong.ball.radius)
@@ -115,6 +139,54 @@ fastify.get("/api/health", async(req, reply) => {
 });
 
 ///// ------- test end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 fastify.post("/api/register", async (request, reply) => {
     console.log(request.body);
@@ -171,79 +243,6 @@ fastify.post("/api/login", async (req, reply) => {
         });
     });
 });
-
-/// basically we dont have to make a promise but i wanted ;D
-/*
-const startServer = async() => {
-    try {
-        await initDatabase();
-
-        const address = await fastify.listen({port: 5000, host: "0.0.0.0"});
-        console.log("server is listening on: ", address);
-
-        //socketGateway = new socketGateway(httpServer); /// this is breaking the code
-
-    } catch (err) {
-        fastify.log.error(err);
-        process.exit(1);
-
-    }
-}*/
-
-/*
-const startServer = async () => {
-  try {
-    await initDatabase();
-    await new Promise((resolve, reject) => {
-      httpServer.once("error", reject);
-      httpServer.listen(5000, "0.0.0.0", () => {
-        console.log("Listening on http://localhost:5000");
-        resolve();
-     });
-    });
-  } catch (err) {
-    console.error("Error starting server:", err);
-    process.exit(1);
-  }
-}
-
-fastify.ready().then(() => {
-    initDatabase();
-    fastify.io.on("connection", (socket) => {
-        console.log("socket ready", socket.id);
-    })
-    fastify.listen({port: 5000});
-    console.log("server listening on port 5000");
-})
-;*/
-
-
-
-//startServer();
-
-
-
-
-
-/*
-
-const startServer = async () => {
-    try {
-      await initDatabase();
- 
-  
-      await new Promise((resolve, reject) => {
-        httpServer.once("error", reject);
-        httpServer.listen(5000, () => {
-          console.log("Server listening on http://localhost:5000");
-          resolve();
-        });
-      });
-    } catch (err) {
-      console.error("Error starting server:", err);
-      process.exit(1);
-    }
-  };*/
 
 
 

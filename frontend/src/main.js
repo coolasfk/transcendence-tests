@@ -2,13 +2,55 @@
 //import {v4 as uuidv4 } from "uuid"
 
 
-const socket = io("http://localhost:5000");
+const socket = new WebSocket('ws://localhost:5000/game');
 
-socket.on("connect", () => {
+socket.addEventListener("open", () => {
+
   console.log("socket connected", socket.id);
+  socket.send(JSON.stringify("hello from the frontend"));
 })
 
-console.log("hello from main.js");
+
+
+/////// listening to the events from the back
+
+socket.addEventListener("message", (event) => {
+  try {
+    const message = JSON.parse(event.data);
+    console.log("📨 Message received from backend:", message);
+
+    if (message.type === "state_update") {
+      ball = message.ball;
+      leftPaddleY = message.leftPaddleY;
+      rightPaddleY = message.rightPaddleY;
+      drawScene();
+    }
+
+    if(message.type === "input_received")
+    {
+      console.log("input received",message.message);
+    }
+
+    if (message.type === "match_over") {
+      const { winnerId, userA_id, userB_id, scoreA, scoreB } = message;
+      const youWon = winnerId === userId;
+      const resultText = youWon
+        ? `🎉 ${userA_id} you won! ${scoreA} : ${scoreB}`
+        : `😢 ${userB_id} you lost ${scoreA} : ${scoreB}`;
+      document.getElementById("gameResultText").textContent = resultText;
+    }
+
+  } catch (err) {
+    console.error("⚠️ Failed to parse backend message:", err, event.data);
+  }
+});
+
+
+/////
+
+
+
+
 export const userId = Math.floor(Math.random() * 1000000);
   console.log("User ID:", userId);
 
@@ -52,38 +94,51 @@ export const  initGame = async () => {
 //let matchId = uuidv4();
 //let matchId = Math.floor(Math.random() * 100000)
 
-  const movePaddleUp = () => {
-    console.log("---front: move paddle up");
-    socket.emit("player_input", {
+
+////---------------------
+
+const movePaddleUp = () => {
+  console.log("move paddle up ---sending")
+  const player_input = {
+    type: "movePaddleUp",
+    data: {
       matchId,
       userId,
       up: true,
       down: false,
-    });
+    },
   };
-
-
-
-
+  socket.send(JSON.stringify(player_input));
+};
 
   const movePaddleDown = () => {
     console.log("---front: move paddle down");
-    socket.emit("player_input", {
+    const paddleDown = {
+      type: "movePaddleDown",
+      data: {
       matchId,
       userId,
       up: false,
       down: true,
-    });
+      }
+    };
+    socket.send(JSON.stringify(paddleDown));
   };
 
   const stopMoving = () => {
-    socket.emit("player_input", {
-      matchId,
-      userId,
-      up: false,
-      down: false,
-    });
+      const stopMoving = {
+        type: "stopMoving",
+        data: {
+          matchId,
+          userId,
+          up: false,
+          down: false,
+        }
+      };
+      socket.send(JSON.stringify(stopMoving));
   };
+
+
 
   if(startAiGameBtn)
   {
@@ -177,7 +232,7 @@ try {
 //it's a full game state sent fron the back: where the ball is, where the paddles are, 
 // what the score is, if the game ended 
 
-
+/*
   socket.on("state_update", (state) => {
     console.log("💅💅💅💅receving the state update from the front: BALL: ", state.ball.ballX, "LEFT PADDLE: ",  leftPaddleY)
     ball = state.ball;
@@ -188,7 +243,7 @@ try {
     drawScene();
   });
 
-
+*/
 
   ///// drawing the scene: ---------
 
@@ -232,7 +287,7 @@ try {
   drawScene(); 
 };
 
-
+/*
 
 socket.on("match_over", (matchData) => {
   const {winnerId, userA_id, userB_id, scoreA, scoreB} = matchData;
@@ -244,4 +299,4 @@ socket.on("match_over", (matchData) => {
 
   document.getElementById("gameResultText").textContent = message;
 
-})
+})*/
