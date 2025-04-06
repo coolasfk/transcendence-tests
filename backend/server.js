@@ -32,7 +32,7 @@ await fastify.register(websocketPlugin);
 
 
 fastify.get('/game', { websocket: true }, (connection, req) => {
-    console.log("client connected");
+    console.log("client connected::: fastify get");
   
     connection.socket.on('message', (rawMessage) => {
       try {
@@ -59,37 +59,6 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
 
 fastify.ready().then(() => {
     initDatabase();
-    /*fastify.io.on("connection", (socket) => {
-        console.log("socket ready at server.js", socket.id); 
-        
-        socket.on("player_input", ({ matchId, userId, up, down }) => {
-        console.log("player_input received from frontend!", matchId, userId, up, down);
-    
-
-        fastify.io.on("connection", socket => {
-            socket.join("userRoom");
-          });
-
-
-
-
-        const match = matchMakingStore.findById(matchId);
-        if (!match || !match.pong)
-        {
-            console.log("match does not exists 👻")
-            return;
-        } else
-        {
-            console.log("🚨🚨 TRYING TO MOVE THAT PADDLE 🚨🚨 ");
-            match.pong.movePaddle(userId, up, down);
-        }
-        
-      });
-    
-      socket.on('disconnect', () => {
-        console.log("Socket disconnected 👻", socket.id);
-      });
-    });*/
    
     fastify.listen({port: 5000});
     console.log("server listening on port 5000");
@@ -107,15 +76,16 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
         const {matchId, userId, nickname, oponnentId, oponnentNickname} = req.body;
         console.log("logs invite accepted", userId, nickname, oponnentId,oponnentNickname);
         const match = new Match(matchId, userId, nickname, oponnentId, oponnentNickname, false);
-        //match.startMatch(fastify.io);
 
         matchMakingStore.save(match);
         if(match.pong)
         {
-            console.log("checking if match is OK", match.pong.ball.radius)
+            console.log("checking if match is OK", match.pong.ball.radius);
+            ///// creating rooms///
+            
         } else
         {
-            "something is off with saving to the database 👻";
+            console.log("something is off with saving to the database 👻");
         }
 
         return reply.status(200).send({message: "Match successfully created", matchId: match.id});

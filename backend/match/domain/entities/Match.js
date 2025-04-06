@@ -16,7 +16,7 @@ export default class Match {
         this.isAi = isAi;
         this.winner = null; //// add logic for the winnere
 
-        this.pong = null;
+        this.pong = this.createPong();
         this.status = 'default';
         this.STATUS = {
             DEFAULT: 'default',
@@ -103,7 +103,19 @@ export default class Match {
 
     createPong()
     {
-        this.pong = new Pong(this.width, this.height, this.userId, this.oponnentId,  this.userNickname, this.oponnentNickname, this.isAi);
+        console.log("----- creating pong at createPong at Match")
+
+        try {
+            const pong = new Pong(this.width, this.height, this.userId, this.oponnentId,  this.userNickname, this.oponnentNickname, this.isAi); 
+            return pong;
+        } catch(e)
+        {
+            console.log("xxxxxxx  errorrr creating pong::: ", e);
+            return null;
+
+
+        }
+       
     }
 
 

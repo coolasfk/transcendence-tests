@@ -6,13 +6,39 @@ const socket = new WebSocket('ws://localhost:5000/game');
 
 socket.addEventListener("open", () => {
 
-  console.log("socket connected", socket.id);
+  console.log("socket connected");
   socket.send(JSON.stringify("hello from the frontend"));
 })
 
+////------------>><<------- hard-coded data from the user -------------////
+
+export const userId = Math.floor(Math.random() * 1000000);
+  console.log("User ID:", userId);
+
+export const matchId = Math.floor(Math.random() * 1000000);
+  console.log("--------->>>>Match ID:", matchId);
+
+export const oponnentId = Math.floor(Math.random() * 1000000);
+
+export const  initGame = async () => {
+
+  console.log("Initializing the game...");
+
+  const nickname = prompt("Type your nickname:");
+  if (!nickname || nickname.length < 2) {
+    alert("Nickname too short!");
+    return;
 
 
-/////// listening to the events from the back
+  }
+  const oponnentNickname = "oponnent_nickname";
+
+
+  ////------------>><<--------------------////
+
+
+
+/////// listening to the events from the back /////
 
 socket.addEventListener("message", (event) => {
   try {
@@ -41,31 +67,17 @@ socket.addEventListener("message", (event) => {
     }
 
   } catch (err) {
-    console.error("⚠️ Failed to parse backend message:", err, event.data);
+    console.error("Failed to parse backend message:", err, event.data);
   }
 });
 
 
-/////
+/////---------///
 
 
 
 
-export const userId = Math.floor(Math.random() * 1000000);
-  console.log("User ID:", userId);
 
-  export const matchId = Math.floor(Math.random() * 1000000);
-  console.log("--------->>>>Match ID:", matchId);
-
-export const  initGame = async () => {
-
-  console.log("Initializing the game...");
-
-  const nickname = prompt("Type your nickname:");
-  if (!nickname || nickname.length < 2) {
-    alert("Nickname too short!");
-    return;
-  }
 
 
 
@@ -172,10 +184,10 @@ try {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
       matchId,
-      userId: "666",
+      userId,
       nickname,
-      oponnentId: "123",
-      oponnentNickname: "oponnent_name",
+      oponnentId,
+      oponnentNickname,
       }),
   });
   if(response.ok)
@@ -191,9 +203,6 @@ try {
   console.error("Error: cannot start the game from the invitation: ", error);
   alert("Cannot start the game from the invite", error);
 }
-
-
-
 })
 
 
