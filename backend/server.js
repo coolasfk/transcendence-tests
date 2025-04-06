@@ -16,6 +16,7 @@ import {matchMakingStore} from './match/infrastructure/matchMemoryStore.js';
 import { userId } from "../frontend/src/main.js";
 import { connect } from "http2";
 import { mkdirSync } from "fs";
+import { roomStore } from "./match/infrastructure/RoomStore.js";
 
 
 dotenv.config();
@@ -29,7 +30,21 @@ await fastify.register(cors, {
 await fastify.register(websocketPlugin);
 
 
+//// when the client opens the connection, it sends data to the /game endpoint
 
+/**Flow::
+ * 
+ * 1. user sends invite  - generate matchId 
+ *        - store matchId together with the userId in the temp pendingMatch map in the back
+ *         - the invitation is being sent together with the matchId
+ * 2. OPONNENT accepts the invite ---->> call the endpoint yourInviteGotAccepted
+ *        -  in yourInviteGotAccepted we search the pendingMatch for the correct matchId;
+ *        - if the correct matchId is found, we can create the match;
+ * 3. Frontend opens sockets for both users, they both need to send event "join_match" 
+ *        - via sockets with matchId & their ids
+ * 4. Backend puts both matchId & userIds in the roomStore. 2 players with the same matchId ---> game starts
+ * 
+ */
 
 fastify.get('/game', { websocket: true }, (connection, req) => {
     console.log("client connected::: fastify get");
@@ -37,11 +52,36 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
     connection.socket.on('message', (rawMessage) => {
       try {
         const msg = JSON.parse(rawMessage);
+        if(msg.type === "join_match")
+        {
+            const {matchId, userId} = msg.data;
+            roomStore.addSocket(matchId, socket, userId);
+            const playerCount = roomStore.getUserCount(matchId);
+            if(playerCount === 2)
+            {
+                const match = matchMakingStore.findById(matchId);
+                if(match)
+                {
+                     match.startMatch();
+                roomStore.broadcast(matchId, (uid) => ({
+                    type: "start game",
+                    message: uid === userId ? "you are player b" : "you are player a"
+                }))
+                } else
+                {
+                    console.warn("MATCH NOT FOUND at fastify.get join match");
+                }
+               
+            }
+
+        }
   
         if (msg.data && msg.type === "movePaddleUp") {
         const {matchId, userId, up, down} = msg.data;
-          console.log("Input received:",  matchId, userId, up, down);
-  
+          console.log("💅🏻💅🏻💅🏻💅🏻💅🏻 Input received: matchid, userid",  matchId, userId, up, down);
+          ////creating a room for two players
+            roomStore.addSocket(matchId, connection.socket, userId, );
+            console.log(`User ${userId} joined room ${matchId}`)
           connection.socket.send(JSON.stringify({
 
             type: "input_received",
@@ -82,7 +122,7 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
         {
             console.log("checking if match is OK", match.pong.ball.radius);
             ///// creating rooms///
-            
+
         } else
         {
             console.log("something is off with saving to the database 👻");
@@ -109,27 +149,6 @@ fastify.get("/api/health", async(req, reply) => {
 });
 
 ///// ------- test end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
