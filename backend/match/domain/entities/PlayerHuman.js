@@ -6,6 +6,6 @@ export default class PlayerHuman extends Player
     constructor(id, nickname)
     {
         super(id, nickname);
-        this.paddle = new Paddle(0.5);
+        this.paddle = new Paddle(0.5, id);
     }
 }

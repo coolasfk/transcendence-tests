@@ -6,7 +6,7 @@ import EventBus from '../../infrastructure/EventBus.js';
 import GameEngine from '../../infrastructure/GameEngine.js';
 
 export default class Match {
-    constructor(matchId, userId, userNickname, oponnentId, oponnentNickname, isAi)
+    constructor(width, height, matchId, userId, userNickname, oponnentId, oponnentNickname, isAi)
     {
         this.matchId = matchId;
         this.userId = userId;
@@ -15,7 +15,8 @@ export default class Match {
         this.oponnentNickname = oponnentNickname;
         this.isAi = isAi;
         this.winner = null; //// add logic for the winnere
-
+        this.width = width;
+        this.height = height;
         this.pong = this.createPong();
         this.status = 'default';
         this.STATUS = {
@@ -27,8 +28,8 @@ export default class Match {
         };
 
         this.date = null;
-        this.width = 1280;
-        this.height = 720;
+        console.log("checking width and height at MATCH", width, height);
+        
     }
 
     ////sending invitation to the user: when clicking on the send invitation to 
@@ -69,7 +70,7 @@ export default class Match {
     }*/
 
 
-    startMatch(io)
+    startMatch()
     {
 
         /*
@@ -87,18 +88,13 @@ export default class Match {
         
         */
 
-       
-        
-        this.createPong()
-        io.to(this.userId).socketsJoin(this.userId);
-        io.to(this.oponnentId).socketsJoin(this.oponnentId);
+
         this.date = new Date();
-        this.createPong();
         this.status = this.STATUS.ONGOING;
         //// move game engine to the wrapper 
-        this.engine = new GameEngine(io, this) ;
+        this.engine = new GameEngine(this) ;
         this.engine.start();
-        console.log("match: startMatch starting the game")
+        console.log("🥖🥖🥖🥖🥖🥖🥖🥖🥖🥖🥖🥖🥖match: startMatch starting the game")
     }
 
     createPong()
@@ -106,6 +102,8 @@ export default class Match {
         console.log("----- creating pong at createPong at Match")
 
         try {
+
+            console.log("checking parameters at create Match: ", this.width, this.height, this.userId, this.oponnentId,  this.userNickname, this.oponnentNickname, this.isAi);
             const pong = new Pong(this.width, this.height, this.userId, this.oponnentId,  this.userNickname, this.oponnentNickname, this.isAi); 
             return pong;
         } catch(e)

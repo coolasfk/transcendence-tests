@@ -11,14 +11,17 @@ socket.addEventListener("open", () => {
 })
 
 ////------------>><<------- hard-coded data from the user -------------////
-
-export const userId = Math.floor(Math.random() * 1000000);
+//
+export const userId = 111;
+export const oponnentId = 222; 
   console.log("User ID:", userId);
 
-export const matchId = Math.floor(Math.random() * 1000000);
+//export const matchId = Math.floor(Math.random() * 1000000);
+
+////£!!!!!!!!! hardcoded match for now
+export const matchId = 666;
   console.log("--------->>>>Match ID:", matchId);
 
-export const oponnentId = Math.floor(Math.random() * 1000000);
 
 export const  initGame = async () => {
 
@@ -46,7 +49,9 @@ socket.addEventListener("message", (event) => {
     console.log("📨 Message received from backend:", message);
 
     if (message.type === "state_update") {
-      ball = message.ball;
+      ballX = message.ballX;
+      ballY = message.ballY;
+      ballSize = message.ballSize;
       leftPaddleY = message.leftPaddleY;
       rightPaddleY = message.rightPaddleY;
       drawScene();
@@ -83,9 +88,9 @@ socket.addEventListener("message", (event) => {
 
   const canvas = document.getElementById("pongCanvas");
   const ctx = canvas.getContext("2d");
-  const startBtn = document.getElementById("startBtn");
+  //const startBtn = document.getElementById("startBtn");
   const resetBtn = document.getElementById("resetBtn");
-  const startAiGameBtn = document.getElementById("startAiGameBtn");
+  //const startAiGameBtn = document.getElementById("startAiGameBtn");
 
 //-------------------------------------
 
@@ -93,12 +98,16 @@ socket.addEventListener("message", (event) => {
   canvas.width = width;
   canvas.height = width * (9 / 16);
 
+  let height = canvas.height;
+
   const paddleHeight = canvas.height * 0.13;
   const paddleWidth = canvas.height * 0.016;
 
   let leftPaddleY = 0;
   let rightPaddleY = 0;
-  let ball = { ballX: 0, ballY: 0, ballSize: 15 };
+  let ballX =  0;
+  let ballY  = 0;
+  let ballSize = 15 ;
 
 //---------------------------------------------
 
@@ -109,13 +118,13 @@ socket.addEventListener("message", (event) => {
 
 ////---------------------
 
-const movePaddleUp = () => {
+const movePaddleUp = (who) => {
   console.log("move paddle up ---sending")
   const player_input = {
     type: "movePaddleUp",
     data: {
       matchId,
-      userId,
+      who,
       up: true,
       down: false,
     },
@@ -123,13 +132,14 @@ const movePaddleUp = () => {
   socket.send(JSON.stringify(player_input));
 };
 
-  const movePaddleDown = () => {
+  const movePaddleDown = (who) => {
     console.log("---front: move paddle down");
+
     const paddleDown = {
       type: "movePaddleDown",
       data: {
       matchId,
-      userId,
+      who,
       up: false,
       down: true,
       }
@@ -137,41 +147,18 @@ const movePaddleUp = () => {
     socket.send(JSON.stringify(paddleDown));
   };
 
-  const stopMoving = () => {
+  const stopMoving = (who) => {
       const stopMoving = {
         type: "stopMoving",
         data: {
           matchId,
-          userId,
+          who,
           up: false,
           down: false,
         }
       };
       socket.send(JSON.stringify(stopMoving));
   };
-
-
-
-  if(startAiGameBtn)
-  {
-    startAiGameBtn.addEventListener("click", () => {
-      socket.emit("join match with ai", {
-        userId,
-        nickname
-      })
-    })
-  }
-
-  if (startBtn) {
-    startBtn.addEventListener("click", () => {
-
-      socket.emit("join human match", {
-        userId,
-        nickname
-      });
-    });
-  }
-
 
 
 document.getElementById("inviteAccepted").addEventListener("click", async() => {
@@ -183,6 +170,8 @@ try {
     method: "POST", 
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
+      width,
+      height,
       matchId,
       userId,
       nickname,
@@ -192,6 +181,19 @@ try {
   });
   if(response.ok)
   {
+
+    console.log("🥖🥖🥖🥖🥖🥖🥖 joining the match");
+
+    const joinMatch = {
+      type: "join_match",
+      data: {
+        matchId,
+        userId,
+        oponnentId
+      } 
+    };
+    socket.send(JSON.stringify(joinMatch))
+
     alert("Pong is about to start... countdown... 3 .. 2")
   }
   else
@@ -206,53 +208,27 @@ try {
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   //// ------------- event listenners =================
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp" || e.key.toLowerCase() === "w") movePaddleUp();
-    if (e.key === "ArrowDown" || e.key.toLowerCase() === "s") movePaddleDown();
+    if (e.key === "ArrowUp")
+        movePaddleUp(userId);
+    if(e.key.toLowerCase() === "w")
+        movePaddleUp(oponnentId);
+    if (e.key === "ArrowDown")
+        movePaddleDown(userId);
+    if(e.key.toLowerCase() === "s") movePaddleDown(oponnentId);
   });
 
   document.addEventListener("keyup", (e) => {
     if (
       e.key === "ArrowUp" ||
-      e.key === "ArrowDown" ||
-      e.key.toLowerCase() === "w" ||
-      e.key.toLowerCase() === "s"
-    ) {
-      stopMoving();
-    }
+      e.key === "ArrowDown")
+          stopMoving(oponnentId);
+    if(e.key.toLowerCase() === "w" || e.key.toLowerCase() === "s")
+      stopMoving(userId);
   });
 
-/// lkistening for the events from the back   <<<<--------------
-//it's a full game state sent fron the back: where the ball is, where the paddles are, 
-// what the score is, if the game ended 
-
-/*
-  socket.on("state_update", (state) => {
-    console.log("💅💅💅💅receving the state update from the front: BALL: ", state.ball.ballX, "LEFT PADDLE: ",  leftPaddleY)
-    ball = state.ball;
-    leftPaddleY = state.leftPaddleY;
-    rightPaddleY = state.rightPaddleY;
-    //scoreA = state.scoreA;
-    //scoreB = state.scoreB
-    drawScene();
-  });
-
-*/
 
   ///// drawing the scene: ---------
 
@@ -263,8 +239,8 @@ try {
 
   const drawBall = () => {
     ctx.beginPath();
-    console.log("ball checks:", ball.ballX, ball.ballY, ball.ballX );
-    ctx.arc(ball.ballX, ball.ballY, ball.ballSize, 0, Math.PI * 2);
+    console.log("ball checks:", ballX, ballY, ballSize );
+    ctx.arc(ballX, ballY, ballSize, 0, Math.PI * 2);
     ctx.fillStyle = "#305cde";
     ctx.fill();
   };
@@ -296,16 +272,3 @@ try {
   drawScene(); 
 };
 
-/*
-
-socket.on("match_over", (matchData) => {
-  const {winnerId, userA_id, userB_id, scoreA, scoreB} = matchData;
-
-  const youWon = winnerId === userId; /// userId is in this file at the top:   const userId = Math.floor(Math.random() * 1000000); . why i cannot find it ?
-
-
-  const message = youWon ? `yeah ${userA_id} you won! ${scoreA} : ${scoreB}` : `${userB_id} you lost ${scoreA} : ${scoreB}`;
-
-  document.getElementById("gameResultText").textContent = message;
-
-})*/

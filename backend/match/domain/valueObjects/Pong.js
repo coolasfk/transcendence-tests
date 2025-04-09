@@ -16,12 +16,16 @@ export default class Pong
         this.playerB_id = playerB_id;
 
         this.playerA = new PlayerHuman(playerA_id, nicknameA);
+        console.log("player a paddle: ", this.playerA.paddle);
 
 
         this.playerB = isAi ? new PlayerAi(playerB_id, null) : new PlayerHuman(playerB_id, nicknameB);
 
 
-        this.ball = new Ball(width/2, height/2);
+
+        console.log("checking width and height at PONG", this.width, this.height);
+
+        this.ball = new Ball(this.width, this.height);
 
 
         
@@ -32,12 +36,14 @@ export default class Pong
     {
         this.playerA.paddle.update();
         this.playerB.paddle.update();
+        //console.log(this.playerA.id);
+        //console.log(this.playerB,id);
 
         this.ball.update();
 
         [this.playerA.paddle, this.playerB.paddle].forEach((paddle) => {
             if(this.ball.checkPaddleCollision(paddle))
-                this.ball.vx *= -1;
+                this.ball.ballSpeedX *= -1;
         })
     }
 
@@ -47,12 +53,16 @@ export default class Pong
         let paddle;
         if(playerId === this.playerA_id)
             paddle = this.playerA.paddle;
-        if(playerId === this.playerB_id)
+        else if(playerId === this.playerB_id)
             paddle = this.playerB.paddle;
+        else console.log("we have a problem with player undefined at move paddle PONG ")
 
 
-        if(!paddle) return;
-
+        if(!paddle) 
+        {
+            console.log("🚒🚒🚒 paddle does not exists");
+            return;
+        }
         if(up) paddle.moveUp();
         else if(down) paddle.moveDown();
         else paddle.stop();
@@ -85,7 +95,9 @@ export default class Pong
     serialize()
     {
         return {
-            ball: this.ball.serialize(),
+            ballX: this.ball.x,
+            ballY: this.ball.y,
+            ballSize: this.ball.radius,
             leftPaddleY: this.playerA.paddle.y,
             rightPaddleY: this.playerB.paddle.y
         }

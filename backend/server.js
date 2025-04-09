@@ -1,21 +1,11 @@
 import Fastify from "fastify";
 import websocketPlugin from '@fastify/websocket';
 import cors from '@fastify/cors';
-import sqlite3 from "sqlite3";
 import dotenv from "dotenv";
-import {open} from 'sqlite';
-import {matchRepo} from './matchRepo.js'
 import bcrypt from "bcryptjs";
-import { createServer } from 'http';
-import SocketGateway from './match/infrastructure/WebSocket/SocketGateway.js'
 import Match from "./match/domain/entities/Match.js";
-import {v4 as uuid} from 'uuid';
-import http from 'http';
 import {initDatabase, getDb} from "./initRepo.js";
 import {matchMakingStore} from './match/infrastructure/matchMemoryStore.js';
-import { userId } from "../frontend/src/main.js";
-import { connect } from "http2";
-import { mkdirSync } from "fs";
 import { roomStore } from "./match/infrastructure/RoomStore.js";
 
 
@@ -54,11 +44,23 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
         const msg = JSON.parse(rawMessage);
         if(msg.type === "join_match")
         {
-            const {matchId, userId} = msg.data;
-            roomStore.addSocket(matchId, socket, userId);
+            console.log("🥖🥖🥖 input join match received");
+
+            ///---->THIS IS A GOOD CODE, I CHANGED THIS PART FOR TESTING----///
+            /*const {matchId, userId} = msg.data;
+            roomStore.addSocket(matchId, connection.socket, userId);
+            const playerCount = roomStore.getUserCount(matchId);*/
+
+            const {matchId, userId, oponnentId} = msg.data;
+            roomStore.addSocket(matchId, connection.socket, userId);
+            roomStore.addSocket(matchId, connection.socket, oponnentId);
+            
             const playerCount = roomStore.getUserCount(matchId);
+
+            console.log("player count: ", playerCount);
             if(playerCount === 2)
             {
+                console.log("we have two players");
                 const match = matchMakingStore.findById(matchId);
                 if(match)
                 {
@@ -77,17 +79,39 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
         }
   
         if (msg.data && msg.type === "movePaddleUp") {
-        const {matchId, userId, up, down} = msg.data;
-          console.log("💅🏻💅🏻💅🏻💅🏻💅🏻 Input received: matchid, userid",  matchId, userId, up, down);
-          ////creating a room for two players
-            roomStore.addSocket(matchId, connection.socket, userId, );
-            console.log(`User ${userId} joined room ${matchId}`)
-          connection.socket.send(JSON.stringify({
+        const {matchId, who, up, down} = msg.data;
+          console.log("💅🏻💅🏻💅🏻💅🏻💅🏻 Input received: matchid, userid",  matchId, who, up, down);
 
+            console.log(`User ${who} joined room ${matchId}`) 
+            const match = matchMakingStore.findById(matchId);
+
+            console.log("two paddles in this match id belong to: ", match.userId, "...",  match.oponnentId);
+            match.pong.movePaddle(who, up, down);
+            console.log("WILL BE TRYING TO MOVE THE PADDLE OF THE ID: ", who);
+           // const data = get
+          connection.socket.send(JSON.stringify({
+           
             type: "input_received",
             message: "Player input received"}))
            
         }
+        if (msg.data && msg.type === "movePaddleDown") {
+            const {matchId, who, up, down} = msg.data;
+              console.log("💅🏻💅🏻💅🏻💅🏻💅🏻 Input received: matchid, userid",  matchId, who, up, down);
+    
+                console.log(`User ${who} joined room ${matchId}`) 
+                const match = matchMakingStore.findById(matchId);
+    
+                console.log("two paddles in this match id belong to: ", match.userId, "...",  match.oponnentId);
+                match.pong.movePaddle(who, up, down);
+                console.log("WILL BE TRYING TO MOVE THE PADDLE OF THE ID: ", who);
+               // const data = get
+              connection.socket.send(JSON.stringify({
+               
+                type: "input_received",
+                message: "Player input received"}))
+               
+            }
       } catch (err) {
         console.error("Invalid message", err);
       }
@@ -113,9 +137,9 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
         console.log("------your invite got accepted (server.js)")
 
-        const {matchId, userId, nickname, oponnentId, oponnentNickname} = req.body;
-        console.log("logs invite accepted", userId, nickname, oponnentId,oponnentNickname);
-        const match = new Match(matchId, userId, nickname, oponnentId, oponnentNickname, false);
+        const {width, height, matchId, userId, nickname, oponnentId, oponnentNickname} = req.body;
+        console.log("logs invite accepted", width, height, userId, nickname, oponnentId,oponnentNickname);
+        const match = new Match(width, height, matchId, userId, nickname, oponnentId, oponnentNickname, false);
 
         matchMakingStore.save(match);
         if(match.pong)
@@ -149,32 +173,6 @@ fastify.get("/api/health", async(req, reply) => {
 });
 
 ///// ------- test end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 fastify.post("/api/register", async (request, reply) => {

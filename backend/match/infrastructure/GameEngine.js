@@ -1,11 +1,12 @@
 import SocketGatway from '../infrastructure/WebSocket/SocketGateway.js';
+import { roomStore } from './RoomStore.js';
 
 
 export default class GameEngine 
 {
-    constructor(io, match)
+    constructor(match)
     {
-        this.io = io;
+
         this.match = match;
         this.loop = null;
         this.timeStart = new Date();
@@ -31,7 +32,9 @@ export default class GameEngine
         if(!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;
 
-        this.match.pong.ball.update();
+        //this.match.pong.ball.update();
+        this.match.pong.update();
+
         if(this.match.pong.didScoreLeft()) {
             this.match.updateScore(this.match.playerA_id);
             this.match.pong.resetBall();
@@ -44,7 +47,16 @@ export default class GameEngine
 
         const state = this.match.pong.serialize();
         if(i % 200 === 0)
+        {
+
+     
         console.log("STATE UPDATE 💅💅💅💅::: ", state, "match id: ", this.match.matchId);
+       
+    } 
+    roomStore.broadcast(this.match.matchId, () => ({
+            type: "state_update",
+            ...state
+        }))  
         //this.io.to(this.match.matchId).emit("state_update", state);
 
         /*
