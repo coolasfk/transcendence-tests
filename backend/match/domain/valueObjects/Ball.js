@@ -31,17 +31,17 @@ this.y = this.canvasHeight / 2;
   
     if (
       this.x  <= paddleWidth &&
-      this.y > paddleYA &&
-      this.y < paddleYA + paddleHeight
+      this.y > paddleYA - 50 &&
+      this.y < paddleYA + paddleHeight - 50
     ) {
       this.ballSpeedX *= -1;
 
     } else if (
-      // Changed from "paddleX - paddleWidth" to just "paddleX" so collision works correctly
+    
       this.x + this.radius >= this.canvasWidth - paddleWidth - 10 &&
       this.y > paddleYB &&
       this.y < paddleYB + paddleHeight
-    ) {
+    ) {  
       this.ballSpeedX *= -1;
     } 
     else if (this.y <= 0) {
@@ -50,40 +50,12 @@ this.y = this.canvasHeight / 2;
       this.ballSpeedY *= -1;
     } else if (this.x < 0 || this.x >= this.canvasWidth) {
       console.log(this.x, "...", this.y);
-      console.log("POOOOOIIIIIINT!!!!!!!!! 👑👑👑👑👑👑");
+      //console.log("POOOOOIIIIIINT!!!!!!!!! 👑👑👑👑👑👑");
       this.reset();
     }
 }
 
-      //this.ballSpeedX *= -1;
- 
-
-
-    //console.log("checking x & y at update", this.x, this.y);
-  //}
-/*
-  checkPaddleCollision(paddleX, paddleY, paddleWidth, paddleHeight) { 
-  console.log("++++++++++checking collisions at checking collisions at ball++++++++");
-    return (
-
-      this.x - this.radius < paddleX + paddleWidth &&
-      this.x + this.radius > paddleX &&
-      this.y > paddleY &&
-      this.y < paddleY + paddleHeight
-
-     
-    );
-  }
-
-  isOutLeft() {
-    console.log("checking x & y at is left out at balls", this.x, this.y);
-    return this.x + this.radius < 0;
-  }
-
-  isOutRight() {
-    console.log("checking x & y at ball at is out right at balls", this.x, this.y);
-    return this.x - this.radius > this.canvasWidth;
-  }*/
+   
 
   serialize() {
     return {

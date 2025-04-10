@@ -1,4 +1,4 @@
-import SocketGatway from '../infrastructure/WebSocket/SocketGateway.js';
+
 import { roomStore } from './RoomStore.js';
 
 
@@ -28,33 +28,24 @@ export default class GameEngine
     update(i)
     {
         /*if(i % 200 === 0)
-        console.log("********* loop going");*/
+        console.log("💅💅💅💅 GameEngine ********* loop going");*/
 
         if(!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;
 
-        //this.match.pong.ball.update();
+        // 🟢 ➜➜➜➜➜➜➜➜➜ updating PADDLES AND PONG with every loop 1000/60
+
         this.match.pong.update();
-
-        /*if(this.match.pong.didScoreLeft()) {
-            console.log("🧞‍♀️🧞‍♀️ scored LEFT 🧞‍♀️🧞‍♀️")
-            this.match.updateScore(this.match.playerA_id);
-            this.match.pong.resetBall();
-        } else if (this.match.pong.didScoreRight())
-        { console.log("🧞‍♀️🧞‍♀️ scored RIGHT 🧞‍♀️🧞‍♀️")
-            this.match.updateScore(this.match.playerB_id);
-            this.match.pong.resetBall();
-        }
-*/
-
         const state = this.match.pong.serialize();
         if(i % 200 === 0)
         {
 
      
-        //console.log("STATE UPDATE 💅💅💅💅::: ", state, "match id: ", this.match.matchId);
+        //console.log("💅💅💅💅 GameEngine STATE UPDATE ::: ", state, "match id: ", this.match.matchId);
        
     } 
+    /// i can call broadcast with the callback function or without
+    
     roomStore.broadcast(this.match.matchId, () => ({
             type: "state_update",
             ...state
@@ -62,15 +53,5 @@ export default class GameEngine
         if (!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;
     }
-
-    /*handleInput({playerId, up, down})
-    {
-        if(!this.match || this.match.STATUS != ONGOING)
-            return;
-        
-
-        this.match.handleInput(playerId, up, down);
-    }*/
-
 
 }

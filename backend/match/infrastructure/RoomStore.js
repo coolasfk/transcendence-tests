@@ -1,6 +1,7 @@
 
 
 /*
+////🟢 ➜➜➜➜➜➜➜➜➜
 roomstore is an object
 structure for a roomstore : 
 rooms: Map<matchId, Map<userId, socket>>;
@@ -27,6 +28,7 @@ export const roomStore = {
     {
         const room = this.rooms.get(matchId);
         if(!room) return;
+        ////🟢 ➜➜➜➜➜ entries is a build in JS method, it returns iterators for array, map, set
         for (const [userId, socket] of room.entries())
         {
             const message = callbackPerUser(userId);

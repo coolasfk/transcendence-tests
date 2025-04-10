@@ -14,7 +14,7 @@ export default class Match {
         this.userNickname = userNickname;
         this.oponnentNickname = oponnentNickname;
         this.isAi = isAi;
-        this.winner = null; //// add logic for the winnere
+        this.winner = null; //// add logic for the winner
         this.width = width;
         this.height = height;
         this.pong = this.createPong();
@@ -94,7 +94,7 @@ export default class Match {
         //// move game engine to the wrapper 
         this.engine = new GameEngine(this) ;
         this.engine.start();
-        console.log("🥖🥖🥖🥖🥖🥖🥖🥖🥖🥖🥖🥖🥖match: startMatch starting the game")
+        console.log("🥖🥖🥖🥖🥖match: startMatch starting the game")
     }
 
     createPong()

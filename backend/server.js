@@ -20,7 +20,7 @@ await fastify.register(cors, {
 await fastify.register(websocketPlugin);
 
 
-//// when the client opens the connection, it sends data to the /game endpoint
+////🟢 ➜➜➜➜➜➜➜➜➜ when the client opens the connection, it sends data to the /game endpoint
 
 /**Flow::
  * 
@@ -43,10 +43,10 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
       try {
         const msg = JSON.parse(rawMessage);
         if(msg.type === "join_match")
-        {
-            console.log("🥖🥖🥖 input join match received");
+        { 
+            console.log("♥️♥️♥️ input join match received");
 
-            ///---->THIS IS A GOOD CODE, I CHANGED THIS PART FOR TESTING----///
+            ///🟢 ➜➜➜➜➜➜➜➜➜ THIS IS A GOOD CODE, I CHANGED THIS PART FOR TESTING----///
             /*const {matchId, userId} = msg.data;
             roomStore.addSocket(matchId, connection.socket, userId);
             const playerCount = roomStore.getUserCount(matchId);*/
@@ -57,10 +57,10 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
             
             const playerCount = roomStore.getUserCount(matchId);
 
-            console.log("player count: ", playerCount);
+            console.log("♥️♥️♥️ player count: ", playerCount);
             if(playerCount === 2)
             {
-                console.log("we have two players");
+                console.log("♥️♥️♥️ we have two players");
                 const match = matchMakingStore.findById(matchId);
                 if(match)
                 {
@@ -71,7 +71,7 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
                 }))
                 } else
                 {
-                    console.warn("MATCH NOT FOUND at fastify.get join match");
+                    console.warn("♥️♥️♥️ MATCH NOT FOUND at fastify.get join match");
                 }
                
             }
@@ -80,15 +80,14 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
   
         if (msg.data && msg.type === "movePaddleUp") {
         const {matchId, who, up, down} = msg.data;
-          console.log("💅🏻💅🏻💅🏻💅🏻💅🏻 Input received: matchid, userid",  matchId, who, up, down);
+          console.log("♥️♥️♥️ Input received: matchid, userid",  matchId, who, up, down);
 
-            console.log(`User ${who} joined room ${matchId}`) 
+            console.log(`♥️♥️♥️ User ${who} joined room ${matchId}`) 
             const match = matchMakingStore.findById(matchId);
 
-            console.log("two paddles in this match id belong to: ", match.userId, "...",  match.oponnentId);
+            console.log("♥️♥️♥️ two paddles in this match id belong to: ", match.userId, "...",  match.oponnentId);
             match.pong.movePaddle(who, up, down);
-            console.log("WILL BE TRYING TO MOVE THE PADDLE OF THE ID: ", who);
-           // const data = get
+            console.log("♥️♥️♥️ WILL BE TRYING TO MOVE THE PADDLE OF THE ID: ", who);
           connection.socket.send(JSON.stringify({
            
             type: "input_received",
@@ -97,14 +96,14 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
         }
         if (msg.data && msg.type === "movePaddleDown") {
             const {matchId, who, up, down} = msg.data;
-              console.log("💅🏻💅🏻💅🏻💅🏻💅🏻 Input received: matchid, userid",  matchId, who, up, down);
+              console.log("♥️♥️♥️ Input received: matchid, userid",  matchId, who, up, down);
     
-                console.log(`User ${who} joined room ${matchId}`) 
+                console.log(`♥️♥️♥️User ${who} joined room ${matchId}`) 
                 const match = matchMakingStore.findById(matchId);
     
-                console.log("two paddles in this match id belong to: ", match.userId, "...",  match.oponnentId);
+                console.log("♥️♥️♥️two paddles in this match id belong to: ", match.userId, "...",  match.oponnentId);
                 match.pong.movePaddle(who, up, down);
-                console.log("WILL BE TRYING TO MOVE THE PADDLE OF THE ID: ", who);
+                console.log("♥️♥️♥️WILL BE TRYING TO MOVE THE PADDLE OF THE ID: ", who);
                // const data = get
               connection.socket.send(JSON.stringify({
                
@@ -113,7 +112,7 @@ fastify.get('/game', { websocket: true }, (connection, req) => {
                
             }
       } catch (err) {
-        console.error("Invalid message", err);
+        console.error("♥️♥️♥️Invalid message", err);
       }
     });
   });
@@ -132,24 +131,24 @@ fastify.ready().then(() => {
 
 fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
-    console.log("------your invite got accepted (server.js)")
+    console.log("🔆🔆🔆------your invite got accepted (server.js)")
     try{
 
-        console.log("------your invite got accepted (server.js)")
+        console.log("🔆🔆🔆🔆------your invite got accepted (server.js)")
 
         const {width, height, matchId, userId, nickname, oponnentId, oponnentNickname} = req.body;
-        console.log("logs invite accepted", width, height, userId, nickname, oponnentId,oponnentNickname);
+        console.log("🔆🔆🔆logs invite accepted", width, height, userId, nickname, oponnentId,oponnentNickname);
         const match = new Match(width, height, matchId, userId, nickname, oponnentId, oponnentNickname, false);
 
         matchMakingStore.save(match);
         if(match.pong)
         {
-            console.log("checking if match is OK", match.pong.ball.radius);
+            console.log("🔆🔆🔆checking if match is OK", match.pong.ball.radius);
             ///// creating rooms///
 
         } else
         {
-            console.log("something is off with saving to the database 👻");
+            console.log("🔆🔆🔆something is off with saving to the database 👻");
         }
 
         return reply.status(200).send({message: "Match successfully created", matchId: match.id});
@@ -157,22 +156,11 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 
     } catch(err)
     {
-        console.log("error at /api.match/yourInviteGotAccepted", err);
+        console.log("🔆🔆🔆error at /api.match/yourInviteGotAccepted", err);
         return reply.status(400).send({message: err});
     }  
 
 })
-
-
-/////// -------- test
-
-fastify.get("/api/health", async(req, reply) => {
-    console.log("checking health");
-    return reply.status(200).send({status: "pong"});
-
-});
-
-///// ------- test end
 
 
 fastify.post("/api/register", async (request, reply) => {

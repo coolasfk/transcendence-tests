@@ -2,8 +2,6 @@
 import PlayerAi from "../entities/PlayerAi.js";
 import PlayerHuman from "../entities/PlayerHuman.js";
 import Ball from "./Ball.js";
-import Paddle from "./Paddle.js";
-
 
 export default class Pong 
 {
@@ -50,7 +48,7 @@ export default class Pong
             paddle = this.playerA.paddle;
         else if(playerId === this.playerB_id)
             paddle = this.playerB.paddle;
-        else console.log("we have a problem with player undefined at move paddle PONG ")
+        else console.log("we have a problem with player undefined at movePaddle class PONG ")
 
 
         if(!paddle) 
@@ -68,20 +66,7 @@ export default class Pong
         const paddle = this.getPaddle(playerId);
         if(paddle) paddle.stop();
     }
-/*
-    didScoreLeft()
-    {
-  console.log("checking if score left:::::::")
-        return this.ball.isOutRight();
-    }
-
-    didScoreRight()
-    {
-
-console.log("checking if score RIGHT:::::::")
-        return this.ball.isOutLeft();
-    }
-*/
+    
     resetBall()
     {
         return this.ball.reset();

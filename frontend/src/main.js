@@ -1,7 +1,4 @@
 
-//import {v4 as uuidv4 } from "uuid"
-
-
 const socket = new WebSocket('ws://localhost:5000/game');
 
 socket.addEventListener("open", () => {
@@ -18,7 +15,7 @@ export const oponnentId = 222;
 
 //export const matchId = Math.floor(Math.random() * 1000000);
 
-////£!!!!!!!!! hardcoded match for now
+////// 🟢 ➜➜➜➜➜➜➜➜➜!!!!!!!!! hardcoded match for now
 export const matchId = 666;
   console.log("--------->>>>Match ID:", matchId);
 
@@ -41,7 +38,7 @@ export const  initGame = async () => {
 
 
 
-/////// listening to the events from the back /////
+///////// 🟢 ➜➜➜➜➜➜➜➜➜ listening to the events from the back /////
 
 socket.addEventListener("message", (event) => {
   try {
@@ -88,9 +85,7 @@ socket.addEventListener("message", (event) => {
 
   const canvas = document.getElementById("pongCanvas");
   const ctx = canvas.getContext("2d");
-  //const startBtn = document.getElementById("startBtn");
   const resetBtn = document.getElementById("resetBtn");
-  //const startAiGameBtn = document.getElementById("startAiGameBtn");
 
 //-------------------------------------
 
