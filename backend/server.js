@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import Match from "./match/domain/entities/Match.js";
 import {initDatabase, getDb} from "./initRepo.js";
 import {matchMakingStore} from './match/infrastructure/matchMemoryStore.js';
-import { roomStore } from "./match/infrastructure/RoomStore.js";
+import { messageRouter } from './match/application/messageRouter.js';
 
 
 dotenv.config();
@@ -36,81 +36,15 @@ await fastify.register(websocketPlugin);
  * 
  */
 
+
+
 fastify.get('/game', { websocket: true }, (connection, req) => {
-    console.log("client connected::: fastify get");
+    console.log("♥️♥️♥️ client connected::: fastify get");
   
     connection.socket.on('message', (rawMessage) => {
       try {
         const msg = JSON.parse(rawMessage);
-        if(msg.type === "join_match")
-        { 
-            console.log("♥️♥️♥️ input join match received");
-
-            ///🟢 ➜➜➜➜➜➜➜➜➜ THIS IS A GOOD CODE, I CHANGED THIS PART FOR TESTING----///
-            /*const {matchId, userId} = msg.data;
-            roomStore.addSocket(matchId, connection.socket, userId);
-            const playerCount = roomStore.getUserCount(matchId);*/
-
-            const {matchId, userId, oponnentId} = msg.data;
-            roomStore.addSocket(matchId, connection.socket, userId);
-            roomStore.addSocket(matchId, connection.socket, oponnentId);
-            
-            const playerCount = roomStore.getUserCount(matchId);
-
-            console.log("♥️♥️♥️ player count: ", playerCount);
-            if(playerCount === 2)
-            {
-                console.log("♥️♥️♥️ we have two players");
-                const match = matchMakingStore.findById(matchId);
-                if(match)
-                {
-                     match.startMatch();
-                roomStore.broadcast(matchId, (uid) => ({
-                    type: "start game",
-                    message: uid === userId ? "you are player b" : "you are player a"
-                }))
-                } else
-                {
-                    console.warn("♥️♥️♥️ MATCH NOT FOUND at fastify.get join match");
-                }
-               
-            }
-
-        }
-  
-        if (msg.data && msg.type === "movePaddleUp") {
-        const {matchId, who, up, down} = msg.data;
-          console.log("♥️♥️♥️ Input received: matchid, userid",  matchId, who, up, down);
-
-            console.log(`♥️♥️♥️ User ${who} joined room ${matchId}`) 
-            const match = matchMakingStore.findById(matchId);
-
-            console.log("♥️♥️♥️ two paddles in this match id belong to: ", match.userId, "...",  match.oponnentId);
-            match.pong.movePaddle(who, up, down);
-            console.log("♥️♥️♥️ WILL BE TRYING TO MOVE THE PADDLE OF THE ID: ", who);
-          connection.socket.send(JSON.stringify({
-           
-            type: "input_received",
-            message: "Player input received"}))
-           
-        }
-        if (msg.data && msg.type === "movePaddleDown") {
-            const {matchId, who, up, down} = msg.data;
-              console.log("♥️♥️♥️ Input received: matchid, userid",  matchId, who, up, down);
-    
-                console.log(`♥️♥️♥️User ${who} joined room ${matchId}`) 
-                const match = matchMakingStore.findById(matchId);
-    
-                console.log("♥️♥️♥️two paddles in this match id belong to: ", match.userId, "...",  match.oponnentId);
-                match.pong.movePaddle(who, up, down);
-                console.log("♥️♥️♥️WILL BE TRYING TO MOVE THE PADDLE OF THE ID: ", who);
-               // const data = get
-              connection.socket.send(JSON.stringify({
-               
-                type: "input_received",
-                message: "Player input received"}))
-               
-            }
+        messageRouter.handle(msg, connection);
       } catch (err) {
         console.error("♥️♥️♥️Invalid message", err);
       }
@@ -126,6 +60,8 @@ fastify.ready().then(() => {
     fastify.listen({port: 5000});
     console.log("server listening on port 5000");
 })
+
+
 
 /////move this to application layer ::: starting the match
 
@@ -144,7 +80,7 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
         if(match.pong)
         {
             console.log("🔆🔆🔆checking if match is OK", match.pong.ball.radius);
-            ///// creating rooms///
+            ///// creating rooms here ??///
 
         } else
         {

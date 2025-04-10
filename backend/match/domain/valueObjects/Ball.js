@@ -30,16 +30,16 @@ this.y = this.canvasHeight / 2;
     this.y += this.ballSpeedY;
   
     if (
-      this.x  <= paddleWidth &&
-      this.y > paddleYA - 50 &&
-      this.y < paddleYA + paddleHeight - 50
+      this.x  <= paddleWidth + 10 &&
+      this.y - this.radius/2 > paddleYA &&
+      this.y - this.radius/2 < paddleYA + paddleHeight
     ) {
       this.ballSpeedX *= -1;
 
     } else if (
     
       this.x + this.radius >= this.canvasWidth - paddleWidth - 10 &&
-      this.y > paddleYB &&
+      this.y  > paddleYB &&
       this.y < paddleYB + paddleHeight
     ) {  
       this.ballSpeedX *= -1;

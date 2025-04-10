@@ -4,7 +4,7 @@ import Paddle from '../valueObjects/Paddle.js'
 
 export default class Player 
 {
-    constructor(id, nickname)
+    constructor(id, nickname, height)
     {
         if(new.target === Player)
         {
@@ -12,8 +12,9 @@ export default class Player
         }
 
         this.id = id;
+        this.height = height;
         this.isAi = false;
-        this.paddle = new Paddle(0,5);
+        this.paddle = new Paddle(0,5, height);
     }
 
 

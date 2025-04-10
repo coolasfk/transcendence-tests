@@ -4,10 +4,10 @@ import Player from "./Player.js";
 
 export default class PlayerAi extends Player
 {
-    constructor(id, nickname = "Ai")
+    constructor(id, nickname = "Ai", height)
     {
-        super(id, nickname);
-        this.paddle = new Paddle(0.5);
+        super(id, nickname, height);
+        this.paddle = new Paddle(0.5, height);
     }
 
     updateAi(gameState)

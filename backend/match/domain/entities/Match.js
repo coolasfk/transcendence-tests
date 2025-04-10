@@ -2,7 +2,6 @@
 
 
 import Pong from '../valueObjects/Pong.js'
-import EventBus from '../../infrastructure/EventBus.js';
 import GameEngine from '../../infrastructure/GameEngine.js';
 
 export default class Match {
@@ -37,7 +36,6 @@ export default class Match {
     sendGameInvitation()
     {
         this.status = this.STATUS.PENDING;
-        EventBus.publish("game_invitation_sent", {matchId: this.id, oponnentId: this.opponentId});
     }
 
     acceptGameInvitation()
@@ -55,39 +53,11 @@ export default class Match {
         this.status = this.STATUS.DEFAULT;
     }
 
-    /*
-
-    createPlayer(id, nickname, isAi)
-    {
-
-        const player = isAi ? new PlayerAi("ai-"+ Math.floor(Math.random() * 10000)) : new PlayerHuman(id, nickname);
-
-        if(!this.playerA) this.playerA = player;
-        else if(!this.playerB) this.playerB = player;
-        else throw new Error("Match has already two players");
-
-
-    }*/
-
-
+/*
     startMatch()
     {
 
-        /*
-        - open the socket
-        - launch prompts to get the nicknames for the players
-        - create players
-        - create pong 
-
-        - if this is a match with ai, launch this ai thing ( i will add code later)
-
-        - launch game loop and pass variables from the pong (use?)
-        - keep updating the scores throughhout the game
-        - save final data to the data base
-        - destroy pong and the socket and reset the variables 
-        
-        */
-
+       
 
         this.date = new Date();
         this.status = this.STATUS.ONGOING;
@@ -95,7 +65,7 @@ export default class Match {
         this.engine = new GameEngine(this) ;
         this.engine.start();
         console.log("🥖🥖🥖🥖🥖match: startMatch starting the game")
-    }
+    }*/
 
     createPong()
     {
@@ -122,7 +92,6 @@ export default class Match {
     {
         this.status = this.STATUS.FINISHED;
         this.winner = winnerId;
-        EventBus.publish("match_finished", this.serializeForDb()); 
         this.destroy();
 
     }

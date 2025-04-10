@@ -1,5 +1,5 @@
-import { getDb } from "./initRepo.js";
-import match from "./match/domain/entities/Match.js"
+import { getDb } from "../../initRepo.js";
+import match from "../domain/entities/Match.js"
 
 
 

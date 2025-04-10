@@ -3,9 +3,9 @@ import Player from "./Player.js";
 
 export default class PlayerHuman extends Player
 {
-    constructor(id, nickname)
+    constructor(id, nickname, height)
     {
-        super(id, nickname);
-        this.paddle = new Paddle(0.5, id);
+        super(id, nickname, height);
+        this.paddle = new Paddle(0.5, id, height);
     }
 }

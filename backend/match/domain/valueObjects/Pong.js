@@ -13,20 +13,11 @@ export default class Pong
         this.playerA_id = playerA_id;
         this.playerB_id = playerB_id;
 
-        this.playerA = new PlayerHuman(playerA_id, nicknameA);
+        this.playerA = new PlayerHuman(playerA_id, nicknameA, height);
         console.log("player a paddle: ", this.playerA.paddle);
-
-
-        this.playerB = isAi ? new PlayerAi(playerB_id, null) : new PlayerHuman(playerB_id, nicknameB);
-
-
-
+        this.playerB = isAi ? new PlayerAi(playerB_id, null, height) : new PlayerHuman(playerB_id, nicknameB, height);
         console.log("checking width and height at PONG", this.width, this.height);
-
-        this.ball = new Ball(this.width, this.height);
-
-
-        
+        this.ball = new Ball(this.width, this.height);  
     }
 
 
@@ -66,7 +57,7 @@ export default class Pong
         const paddle = this.getPaddle(playerId);
         if(paddle) paddle.stop();
     }
-    
+
     resetBall()
     {
         return this.ball.reset();
