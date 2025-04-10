@@ -34,17 +34,12 @@ export default class Pong
 
     update()
     {
-        this.playerA.paddle.update();
-        this.playerB.paddle.update();
+        this.playerA.paddle.update(this.height);
+        this.playerB.paddle.update(this.height);
         //console.log(this.playerA.id);
         //console.log(this.playerB,id);
-
-        this.ball.update();
-
-        [this.playerA.paddle, this.playerB.paddle].forEach((paddle) => {
-            if(this.ball.checkPaddleCollision(paddle))
-                this.ball.ballSpeedX *= -1;
-        })
+        //console.log("checking the paddles YYYY", this.playerA.paddle.y, "second: ", this.playerB.paddle.y)
+        this.ball.update(this.playerA.paddle.y, this.playerB.paddle.y, 20, 100);
     }
 
     movePaddle(playerId, up, down)
@@ -73,19 +68,20 @@ export default class Pong
         const paddle = this.getPaddle(playerId);
         if(paddle) paddle.stop();
     }
-
+/*
     didScoreLeft()
     {
-
+  console.log("checking if score left:::::::")
         return this.ball.isOutRight();
     }
 
     didScoreRight()
     {
 
+console.log("checking if score RIGHT:::::::")
         return this.ball.isOutLeft();
     }
-
+*/
     resetBall()
     {
         return this.ball.reset();

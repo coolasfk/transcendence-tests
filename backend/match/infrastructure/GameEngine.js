@@ -27,52 +27,38 @@ export default class GameEngine
 
     update(i)
     {
-        if(i % 200 === 0)
-        console.log("********* loop going");
+        /*if(i % 200 === 0)
+        console.log("********* loop going");*/
+
         if(!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;
 
         //this.match.pong.ball.update();
         this.match.pong.update();
 
-        if(this.match.pong.didScoreLeft()) {
+        /*if(this.match.pong.didScoreLeft()) {
+            console.log("🧞‍♀️🧞‍♀️ scored LEFT 🧞‍♀️🧞‍♀️")
             this.match.updateScore(this.match.playerA_id);
             this.match.pong.resetBall();
         } else if (this.match.pong.didScoreRight())
-        {
+        { console.log("🧞‍♀️🧞‍♀️ scored RIGHT 🧞‍♀️🧞‍♀️")
             this.match.updateScore(this.match.playerB_id);
             this.match.pong.resetBall();
         }
-
+*/
 
         const state = this.match.pong.serialize();
         if(i % 200 === 0)
         {
 
      
-        console.log("STATE UPDATE 💅💅💅💅::: ", state, "match id: ", this.match.matchId);
+        //console.log("STATE UPDATE 💅💅💅💅::: ", state, "match id: ", this.match.matchId);
        
     } 
     roomStore.broadcast(this.match.matchId, () => ({
             type: "state_update",
             ...state
         }))  
-        //this.io.to(this.match.matchId).emit("state_update", state);
-
-        /*
-        this.io.to(this.match.userId).emit("state_update", state, (err, responses) => {
-            if(err &&  i % 200 === 0)
-                console.log("🤌🏽🤌🏽🤌🏽🤌🏽 error emitting state to the front : ", err);
-            if(responses &&  i % 200 === 0)
-                console.log("responses: ", responses);
-        });
-        this.io.to(this.match.oponnentId).emit("state_update", state, (err, responses) => {
-            if(err &&  i % 200 === 0)
-                console.log("🤌🏽🤌🏽🤌🏽🤌🏽 error emitting state to the front : ", err);
-            if(responses &&  i % 200 === 0)
-                console.log("responses: ", responses);
-        });
-*/
         if (!this.match || this.match.status !== this.match.STATUS.ONGOING)
             return;
     }

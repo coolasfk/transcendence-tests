@@ -39,7 +39,7 @@ export default class Paddle
         this.y += this.direction * this.speed;
         if( this.y < 0)
             this.y = 0;
-        if(this.y > canvasHeight)
+        if(this.y >= canvasHeight)
             this.y = canvasHeight;
 
 
