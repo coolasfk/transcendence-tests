@@ -1,0 +1,71 @@
+services:
+  # FRONTEND - DEV
+  frontend-dev:
+    build:
+      context: ./frontend
+    working_dir: /app
+    command: >
+      sh -c "npm install &&
+              npm run watch:ts && 
+              npm run watch:css"
+    volumes:
+      - ./frontend:/app
+      - ./frontend/dist:/app/dist
+    profiles:
+      - dev
+    networks:
+      - pongnet
+
+  # FRONTEND - PROD
+  frontend-prod:
+    build:
+      context: ./frontend
+    profiles:
+      - prod
+    volumes:
+      - frontend-dist:/app/dist
+
+  # BACKEND - DEV
+  backend-dev:
+    build:
+      context: ./backend
+    working_dir: /app
+    command: npm run dev
+    depends_on:
+      - frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - ./frontend/dist:/app/frontend/dist
+      - ./database:/database
+      - backend-node-modules:/app/node_modules
+    profiles:
+      - dev
+    networks:
+      - pongnet
+
+  # BACKEND - PROD
+  backend-prod:
+    build:
+      context: ./backend
+    working_dir: /app
+    command: npm run start
+    depends_on:
+      - frontend-prod
+    ports:
+      - "3000:3000"
+    volumes:
+      - frontend-dist:/app/frontend/dist
+      - ./database:/database
+    profiles:
+      - prod
+
+
+volumes:
+  frontend-dist:
+  db-data:
+  backend-node-modules:
+
+networks:
+  pongnet:

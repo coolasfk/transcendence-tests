@@ -3,9 +3,10 @@ import { open } from 'sqlite';
 
 let db = null;
 
+
 export const initDatabase = async () => {
   db = await open({
-    filename: './data/trans_backend.db',
+    filename: './src/shared/data/trans_backend.db',
     driver: sqlite3.Database,
   });
 

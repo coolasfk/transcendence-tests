@@ -2,22 +2,31 @@ import Fastify from "fastify";
 import websocketPlugin from '@fastify/websocket';
 import cors from '@fastify/cors';
 import dotenv from "dotenv";
-import bcrypt from "bcryptjs";
-import Match from "./match/domain/entities/Match.js";
+import Match from "./src/match/domain/entities/Match.js";
 import {initDatabase, getDb} from "./initRepo.js";
-import {matchMakingStore} from './match/infrastructure/matchMemoryStore.js';
-import { messageRouter } from './match/application/messageRouter.js';
+import {matchMakingStore} from './src/match/infrastructure/matchMemoryStore.js';
+
+import registerRoutes from './src/index/index.js';
+import jwt from '@fastify/jwt';
+import databasePlugin from './database/database.js';
+import fastifyBcrypt from 'fastify-bcrypt';
+
+
 
 
 dotenv.config();
 
-const fastify = Fastify();
+const fastify = Fastify({logger: true});
 
 await fastify.register(cors, {
     origin: "*",
 });
 
 await fastify.register(websocketPlugin);
+await fastify.register(jwt, { secret: 'supersecret' });
+
+await fastify.register(databasePlugin);
+await fastify.register(fastifyBcrypt);
 
 
 ////🟢 ➜➜➜➜➜➜➜➜➜ when the client opens the connection, it sends data to the /game endpoint
@@ -32,34 +41,68 @@ await fastify.register(websocketPlugin);
  *        - if the correct matchId is found, we can create the match;
  * 3. Frontend opens sockets for both users, they both need to send event "join_match" 
  *        - via sockets with matchId & their ids
- * 4. Backend puts both matchId & userIds in the roomStore. 2 players with the same matchId ---> game starts
+ * 4. Backend puts both matchId & userIds in the MatchRoomStore. 2 players with the same matchId ---> game starts
  * 
  */
 
 
+// import shared utils, services, and repositories to the Fastify instance
+import BcryptPasswordHasher from './src/shared/utils/hash.js';
+import UserRepositorySQLite from './src/auth/infrastructure/UserRepositorySQLite.js';
+import UserRegister from './src/auth/application/UserRegister.js';
 
-fastify.get('/game', { websocket: true }, (connection, req) => {
+// Create real instances
+const passwordHasher = new BcryptPasswordHasher(fastify.bcrypt);
+const userRepository = new UserRepositorySQLite(fastify.db);
+const userRegister = new UserRegister(userRepository, fastify.jwt, passwordHasher);
+
+// Decorate with actual instances
+fastify.decorate('userRepository', userRepository);
+fastify.decorate('userRegister', userRegister);
+fastify.decorate('bcryptPasswordHasher', passwordHasher);
+
+// Register routes
+try {
+  await registerRoutes(fastify);
+} catch (error) {
+  console.error('Error in registerRoutes:', error);
+  process.exit(1);
+}
+try {
+    await initDatabase();
+} catch(error)
+{
+    console.log("errro initialiting database");
+}
+
+
+fastify.listen({ port: 3000, host: '0.0.0.0' }, function (error, address) {
+  if (error) {
+    fastify.log.error(error)
+    process.exit(1)
+  }
+  console.log(`server running at ${address}`)
+})
+/*
+fastify.get('/ws/main-ws', { websocket: true }, (connection, req) => {
     console.log("♥️♥️♥️ client connected::: fastify get");
   
     connection.socket.on('message', (rawMessage) => {
       try {
-        const msg = JSON.parse(rawMessage);
-        messageRouter.handle(msg, connection);
+        const {domain, type, data} = JSON.parse(rawMessage);
+        if(domain === "chat")
+            chatRouter.handle(type, data, connection);
+        else if(domain === "game")
+            gameRouter.handle(type, data, connection);
       } catch (err) {
         console.error("♥️♥️♥️Invalid message", err);
       }
     });
-  });
+  });*/
   
 
 
 
-fastify.ready().then(() => {
-    initDatabase();
-   
-    fastify.listen({port: 5000});
-    console.log("server listening on port 5000");
-})
 
 
 
@@ -80,7 +123,6 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
         if(match.pong)
         {
             console.log("🔆🔆🔆checking if match is OK", match.pong.ball.radius);
-            ///// creating rooms here ??///
 
         } else
         {
@@ -99,61 +141,6 @@ fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 })
 
 
-fastify.post("/api/register", async (request, reply) => {
-    console.log(request.body);
-    const db = getDb();
-
-    const { nickname, email, password } = request.body;
-
-    if (!nickname || !email || !password) {
-
-        return reply.status(400).send({ message: "Missing important information!" });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    db.run("INSERT INTO users (nickname, email, password) VALUES (?,?,?)", [nickname, email, hashedPassword], (err) => {
-        if (err) {
-            console.log("err: ", err);
-            if (err.code == 'SQLITE_CONSTRAINT') {
-                return reply.status(400).send({ message: "Email already in the database!" });
-            }
-
-            return reply.status(500).send({ message: err });
-        }
-        return reply.status(200).send({ message: "User successfully added to database!" });
-    });
-});
-
-
-fastify.post("/api/login", async (req, reply) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return reply.status(400).send({ message: "Missing credentials!" });
-    }
-    const db = getDb();
-    db.get("SELECT * FROM users WHERE email = ?", [email], async (err, user) => {
-        if (err) {
-            console.log("DB error:", err);
-            return reply.status(500).send({ message: "Server error." });
-        }
-        if (!user) {
-            console.log("USER NOT FOUND");
-            return reply.status(400).send({ message: "User not found." });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            console.log("PASS DO NOT MATCH");
-            return reply.status(401).send({ message: "Invalid password." });
-        }
-
-        console.log("USER NICKNAME: ", user.nickname);
-        reply.status(200).send({
-            message: "Login successful!",
-            nickname: user.nickname,
-        });
-    });
-});
 
 
 

@@ -1,0 +1,5 @@
+{
+  "watch": ["server.js", "package.json"],
+  "ext": "js,json",
+  "exec": "node server.js"
+}
