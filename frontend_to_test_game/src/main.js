@@ -1,10 +1,9 @@
 
-const socket = new WebSocket('ws://localhost:5000/game');
+const socket = new WebSocket('ws://localhost:3000/ws/main-ws');
 
 socket.addEventListener("open", () => {
 
   console.log("socket connected");
-  socket.send(JSON.stringify("hello from the frontend"));
 })
 
 ////------------>><<------- hard-coded data from the user -------------////
@@ -116,6 +115,7 @@ socket.addEventListener("message", (event) => {
 const movePaddleUp = (who) => {
   console.log("move paddle up ---sending")
   const player_input = {
+    domain: "game",
     type: "movePaddleUp",
     data: {
       matchId,
@@ -131,6 +131,7 @@ const movePaddleUp = (who) => {
     console.log("---front: move paddle down");
 
     const paddleDown = {
+      domain: "game",
       type: "movePaddleDown",
       data: {
       matchId,
@@ -144,6 +145,7 @@ const movePaddleUp = (who) => {
 
   const stopMoving = (who) => {
       const stopMoving = {
+        domain: "game",
         type: "stopMoving",
         data: {
           matchId,
@@ -161,7 +163,7 @@ document.getElementById("inviteAccepted").addEventListener("click", async() => {
 console.log("INVITE CLICKED");
 
 try {
-  const response = await fetch ("http://localhost:5000/api/match/yourInviteGotAccepted", {
+  const response = await fetch ("http://localhost:3000/api/match/yourInviteGotAccepted", {
     method: "POST", 
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
@@ -180,6 +182,7 @@ try {
     console.log("🥖🥖🥖🥖🥖🥖🥖 joining the match");
 
     const joinMatch = {
+      domain: "game",
       type: "join_match",
       data: {
         matchId,

@@ -8,6 +8,7 @@ export default async function wsRoute(fastify) {
       connection.socket.on('message', (rawMessage) => {
         try {
           const { domain, type, data } = JSON.parse(rawMessage);
+          //console.log("raw message: ", rawMessage);
   
           if (domain === "chat") {
             chatRouter.handle(type, data, connection);

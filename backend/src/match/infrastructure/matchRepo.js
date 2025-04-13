@@ -1,5 +1,5 @@
-import { getDb } from "../../initRepo.js";
-import match from "../domain/entities/Match.js"
+import { matchId } from "../../../../frontend_to_test_game/src/main.js";
+import { getDb } from "../../../initRepo.js";
 
 
 
@@ -10,10 +10,11 @@ export const matchRepo = {
         console.log("🤝 saving match in the database");
         const db = getDb();
         const data = match.serializeForDb();
+        console.log("trying to save the data: ", data);
         await db.run(
             `INSERT INTO matches (matchId, userA_id, userB_id, scoreA, scoreB, winnerId, date)
              VALUES (?, ?, ?, ?, ?, ?, ?)
-             ON CONFLICT(id) DO UPDATE SET
+             ON CONFLICT(matchId) DO UPDATE SET
                scoreA = excluded.scoreA,
                scoreB = excluded.scoreB,
                winnerId = excluded.winnerId,
@@ -30,15 +31,15 @@ export const matchRepo = {
           );
     },
 
-    async findById(id) {
+    async findById(matchId) {
         const db = getDb();
-        return await db.get(`SELECT * FROM matches WHERE id = ?`, id);
+        return await db.get(`SELECT * FROM matches WHERE matchId = ?`, matchId);
     },
 
-    async delete(id)
+    async delete(matchId)
     {
         const db = getDb();
-        return await db.run(`DELETE FROM matches WHERE id = ?`, id);
+        return await db.run(`DELETE FROM matches WHERE matchId = ?`, matchId);
     },
     async findAll()
     {
@@ -50,7 +51,6 @@ export const matchRepo = {
         const db = getDb();
         return await db.all(
             `SELECT * FROM matches WHERE userA_id = ? OR userB_id = ?`,
-            userId,
             userId
 
         )

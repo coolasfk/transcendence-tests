@@ -2,7 +2,7 @@
 
 
 import Pong from '../valueObjects/Pong.js'
-import GameEngine from '../../infrastructure/GameEngine.js';
+import { matchRepo } from '../../infrastructure/matchRepo.js';
 
 export default class Match {
     constructor(width, height, matchId, userId, userNickname, oponnentId, oponnentNickname, isAi)
@@ -52,21 +52,6 @@ export default class Match {
     {
         this.status = this.STATUS.DEFAULT;
     }
-
-/*
-    startMatch()
-    {
-
-       
-
-        this.date = new Date();
-        this.status = this.STATUS.ONGOING;
-        //// move game engine to the wrapper 
-        this.engine = new GameEngine(this) ;
-        this.engine.start();
-        console.log("🥖🥖🥖🥖🥖match: startMatch starting the game")
-    }*/
-
     createPong()
     {
         console.log("----- creating pong at createPong at Match")
@@ -86,49 +71,35 @@ export default class Match {
        
     }
 
-
-
-    finishMatch(winnerId)
-    {
-        this.status = this.STATUS.FINISHED;
-        this.winner = winnerId;
-        this.destroy();
-
-    }
-
-    updateScore(playerId)
-    {
-        if(!this.playerA || !this.playerB) return;
-
-        if(playerId === this.pong.playerA)
-            this.finalScoreA++;
-        if(playerId === this.pong.playerB)
-            this.finalScoreB++;
-        
-        if(this.finalScoreB >= 5) 
-        {
-            this.finishMatch(this.pong.playerB);
-        }
-        else if(this.finalScoreA >= 5)
-        {
-            this.finishMatch(this.pong.playerA);
-        } 
-
-    }
-
-
     serializeForDb()
     {
         return {
             matchId: this.matchId,
-            userA_id: this.pong.userId,
-            userB_id: this.pong.oponnentId,
-            scoreA: this.pong.finalScoreA,
-            scoreB: this.pong.finalScoreB,
+            userA_id: this.userId,
+            userB_id: this.oponnentId,
+            scoreA: this.pong.ball.scoreA,
+            scoreB: this.pong.ball.scoreB,
             winnerId: this.winner,
             date: this.date,
         }
     }
+
+    async finishMatch(winnerId)
+    {
+        console.log("Finishing the match");
+        console.log("is instance of Match:", this instanceof Match);
+        ///save the match to the database
+       
+        this.winner = winnerId;
+        console.log("Match: finishMatch, winner: ", this.winner);
+        await matchRepo.save(this); 
+        this.status = this.STATUS.FINISHED;
+        this.destroy();
+
+    }
+
+
+
 
     destroy()
         {

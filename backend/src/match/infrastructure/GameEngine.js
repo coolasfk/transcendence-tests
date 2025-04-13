@@ -34,6 +34,22 @@ export default class GameEngine
             return;
 
         // 🟢 ➜➜➜➜➜➜➜➜➜ updating PADDLES AND PONG with every loop 1000/60
+        ///---change to some valid score---for testing purposes
+
+        if(this.match.pong.ball.scoreA >= 1 || this.match.pong.ball.scoreB >= 1 )
+        {
+            console.log(`Player ${this.match.pong.ball.scoreA >= 5 ? "A" : "B"} won`);
+
+        
+            
+            MatchRoomStore.broadcast(this.match.matchId, () => ({
+                type: "match_finished",
+                winner: `Player ${this.match.pong.ball.scoreA >= 5 ? "A" : "B"}`
+            }))  
+            this.match.finishMatch(this.match.pong.ball.scoreA >= 5 ? this.match.userId : this.match.oponnentId);
+            this.stop();
+            return;
+        } 
 
         this.match.pong.update();
         const state = this.match.pong.serialize();

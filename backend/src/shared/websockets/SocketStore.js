@@ -1,9 +1,9 @@
 
 
 
-///// this is just a basic structure for the ChatSocketStore; its missing the logic for the rooms 
+///// this is just a basic structure for the SocketStore; its missing the logic for the rooms 
 
-export const ChatSocketStore = {
+export const SocketStore = {
     sockets: new Map(),
 
     addSocket(userId, socket) {
@@ -21,7 +21,7 @@ export const ChatSocketStore = {
 
     
 
-///// this is just a basic structure for the ChatSocketStore; its missing the logic for the rooms 
+///// this is just a basic structure for the SocketStore; its missing the logic for the rooms 
 
     broadcast(senderId, recipientId, message) {
     const senderSocket = this.sockets.get(senderId);

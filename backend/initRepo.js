@@ -10,18 +10,11 @@ export const initDatabase = async () => {
     driver: sqlite3.Database,
   });
 
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nickname TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL
-    );
-  `);
+
 
   await db.exec(`
     CREATE TABLE IF NOT EXISTS matches (
-        matchId TEXT PRIMARY KEY,
+      matchId TEXT PRIMARY KEY,
       userA_id TEXT,
       userB_id TEXT,
       scoreA INTEGER,

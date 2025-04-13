@@ -28,7 +28,9 @@ export default class Pong
         //console.log(this.playerA.id);
         //console.log(this.playerB,id);
         //console.log("checking the paddles YYYY", this.playerA.paddle.y, "second: ", this.playerB.paddle.y)
-        this.ball.update(this.playerA.paddle.y, this.playerB.paddle.y, 20, 100);
+
+        ///const paddleWidth = canvas.height * 0.016; - from the front
+        this.ball.update(this.playerA.paddle.y, this.playerB.paddle.y, this.height * 0.016, this.height * 0.13);
     }
 
     movePaddle(playerId, up, down)
@@ -71,7 +73,9 @@ export default class Pong
             ballY: this.ball.y,
             ballSize: this.ball.radius,
             leftPaddleY: this.playerA.paddle.y,
-            rightPaddleY: this.playerB.paddle.y
+            rightPaddleY: this.playerB.paddle.y,
+            scoreA: this.ball.scoreA,
+            scoreB: this.ball.scoreB
         }
     }
 }

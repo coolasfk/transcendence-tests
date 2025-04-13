@@ -9,7 +9,11 @@ export default class Paddle
         this.canvasHeight = height;
 
         this.speed = 2;
-        this.height = 100;
+        //// we need to make sure that the paddle in the front also is 100
+        //// this dimension matched the front
+       this.height = height * 0.13;
+      
+        //this.height = 100;
         this.direction = 0;
     }
 
@@ -34,10 +38,10 @@ export default class Paddle
         }
         console.log("🔹🔹🔹 class Paddle move down //////", this.y, "canvasHeight: " , this.canvasHeight);
         ////do this math right babe
-        if(this.y + this.height >= this.canvasHeight - this.height)
+        if(this.y >= this.canvasHeight - this.height)
         {
             console.log("🔹🔹🔹 class Paddle move down this.y + this.height >= this.canvasHeight TRUE");
-            this.direction = -1;
+            this.direction = 0;
         }
     }
 
@@ -54,10 +58,18 @@ export default class Paddle
        // console.log("🔹🔹🔹 class Paddle----------------updating the paddle, this.y: ", this.y, "id: ", this.id);
         this.y += this.direction * this.speed;
         if( this.y <= 0)
-            this.y = 0;
+        {
+            this.direction = 0;
+             this.y = 0;
+        }
+           
         ////🟢 ➜➜➜➜➜➜➜➜➜ do the math ;DDD
-        if(this.y >= canvasHeight - this.height -50)
-            this.y = canvasHeight - this.height -50;
+        if(this.y >= canvasHeight - this.height)
+        {
+            this.direction = 0;
+            this.y = canvasHeight - this.height;
+        }
+            
 
 
     }

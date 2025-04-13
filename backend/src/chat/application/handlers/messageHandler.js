@@ -1,4 +1,4 @@
-import { ChatSocketStore } from "../../../chat/infrastructure/ChatSocketStore.js";
+import { SocketStore } from "../../../shared/websockets/SocketStore.js";
 
 export  function messageHandler(data, connection) {
   try {
@@ -6,12 +6,12 @@ export  function messageHandler(data, connection) {
    
     const { text, userId, recipientId } = data;
     ///// this is only now, for testing. we will be adding only useriD TO THE chatstore
-    ChatSocketStore.addSocket(userId, connection.socket);
-    ChatSocketStore.addSocket(recipientId, connection.socket);
+    SocketStore.addSocket(userId, connection.socket);
+    SocketStore.addSocket(recipientId, connection.socket);
     console.log("Received from client:", text);
 
     const messageBack = {
-      type: data.type,
+      type: "sendMessage",
       echo: true,
       received: data,
       timestamp: Date.now()
@@ -19,7 +19,7 @@ export  function messageHandler(data, connection) {
 
     ///// Send message to the recipient
 
-    ChatSocketStore.broadcast(userId, recipientId, messageBack);
+    SocketStore.broadcast(userId, recipientId, messageBack);
 
   } catch (error) {
     console.error("Failed to handle chat message:", error);

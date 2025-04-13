@@ -83,30 +83,12 @@ fastify.listen({ port: 3000, host: '0.0.0.0' }, function (error, address) {
   }
   console.log(`server running at ${address}`)
 })
-/*
-fastify.get('/ws/main-ws', { websocket: true }, (connection, req) => {
-    console.log("♥️♥️♥️ client connected::: fastify get");
-  
-    connection.socket.on('message', (rawMessage) => {
-      try {
-        const {domain, type, data} = JSON.parse(rawMessage);
-        if(domain === "chat")
-            chatRouter.handle(type, data, connection);
-        else if(domain === "game")
-            gameRouter.handle(type, data, connection);
-      } catch (err) {
-        console.error("♥️♥️♥️Invalid message", err);
-      }
-    });
-  });*/
-  
-
-
 
 
 
 
 /////move this to application layer ::: starting the match
+
 
 fastify.post("/api/match/yourInviteGotAccepted", async (req, reply) => {
 

@@ -3,26 +3,22 @@ export default class Ball {
     this.canvasWidth = width;
     this.canvasHeight = height;
 
-    this.radius = 10;
+    this.radius = width/110;
     this.reset(); 
-  
- this.x = this.canvasWidth / 2;
-  this.y = this.canvasHeight / 2;
+
 
     //console.log("checking x & y at ball", this.x, this.y);
-    this.ballSpeedX = 3;
-    this.ballSpeedY = 3;
+    //// very small speed now for debugging. then lets change this to ~width/300
+    this.ballSpeedX = width/900;
+    this.ballSpeedY = width/900;
+    this.scoreA = 0;
+    this.scoreB = 0;
 
   }
 
   reset() {
-this.x = this.canvasWidth / 2;
-this.y = this.canvasHeight / 2;
-
-   // const speed = 4;
-    //this.vx = Math.random() > 0.5 ? speed : -speed;
-    //this.vy = Math.random() > 0.5 ? speed : -speed;
-    //console.log("checking x & y at ball at reset", this.x, this.y);
+  this.x = this.canvasWidth / 2;
+  this.y = this.canvasHeight / 2;
   }
 
   update(paddleYA, paddleYB, paddleWidth, paddleHeight) {
@@ -30,17 +26,16 @@ this.y = this.canvasHeight / 2;
     this.y += this.ballSpeedY;
   
     if (
-      this.x  <= paddleWidth + 10 &&
+      this.x  <= paddleWidth + this.canvasWidth/100 &&
       this.y - this.radius/2 > paddleYA &&
       this.y - this.radius/2 < paddleYA + paddleHeight
     ) {
       this.ballSpeedX *= -1;
-
     } else if (
     
-      this.x + this.radius >= this.canvasWidth - paddleWidth - 10 &&
+      this.x + this.radius >= this.canvasWidth - paddleWidth - this.canvasWidth/100 &&
       this.y  > paddleYB &&
-      this.y < paddleYB + paddleHeight
+      this.y < paddleYB + paddleHeight + this.canvasWidth/300
     ) {  
       this.ballSpeedX *= -1;
     } 
@@ -48,14 +43,19 @@ this.y = this.canvasHeight / 2;
       this.ballSpeedY *= -1;
     } else if (this.y >= this.canvasHeight) {
       this.ballSpeedY *= -1;
-    } else if (this.x < 0 || this.x >= this.canvasWidth) {
-      console.log(this.x, "...", this.y);
-      //console.log("POOOOOIIIIIINT!!!!!!!!! 👑👑👑👑👑👑");
+    } else if (this.x < 0) {
+      this.scoreB += 1;
       this.reset();
+    } else if (this.x >= this.canvasWidth)
+    {
+      this.scoreA += 1;
+      this.reset();
+
     }
+
+    //console.log("🎾🎾🎾 Ball class: update, logging the score", this.scoreA, "  ", this.scoreB);
 }
 
-   
 
   serialize() {
     return {
